@@ -170,6 +170,8 @@ button{font:inherit;cursor:pointer}
 .end .logo{animation:punch .8s cubic-bezier(.2,1.7,.4,1) both}
 .end .recap{animation:rise .6s .4s ease-out both}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.fx,.confetti{display:none}}
+.passbar{text-align:center;background:#1d2a45;border:1px solid #2b6fff;color:#cfe0ff;border-radius:12px;padding:8px 10px;font-size:14px;font-weight:800;margin:0 0 10px}
+.grid button:disabled{opacity:.35}
 .sdlast{text-align:center;font-size:13px;color:#8fe3b0;margin:-4px 0 2px}
 .duelc .card .in{min-height:0}.duelc .card .art{height:44px}.duelc .card .t{margin-top:10px}.duelc .card .x{padding:4px 16px 10px}
 </style>
@@ -198,8 +200,8 @@ EVERYONE:'Whole room! Only gift-holders’ unlocked gifts move.',
 VOTE:'Everyone votes (tie: the host decides). Skip locked gifts.',
 DUEL:'Pick a gift-holder (both gifts unlocked). Win = you may swap. Can’t tell? They win.',
 TRADE:'Only gift-holders. Skip locked gifts.',KEEP:'Saved in the app. Use it once. Put away at Last Call.',PHEW:'',WILD:'',LAST:''};
-const DECK=[["UNWRAP", "Not a Peep", "Unwrap without making a sound. The room may try to make you laugh. Not a peep? You pulled it off.", "Shhhh.", 0, "", 0], ["UNWRAP", "Statue", "Unwrap. The room may yell “FREEZE!” up to 3 times; freeze for 3 seconds each time. Never moved? You pulled it off.", "Musical statues, gift edition.", 0, "", 0], ["UNWRAP", "Blindfolded", "Eyes closed until the gift is out of the paper. The room shouts directions. Out in 30 seconds? You pulled it off.", "Left. No, YOUR left.", 0, "", 30], ["UNWRAP", "Bow on Head", "Balance a bow (or a napkin) on your head while you unwrap. It never fell? You pulled it off.", "Fashion AND function.", 0, "", 0], ["UNWRAP", "Slow-Mo", "Unwrap in dramatic slow motion, with sound effects. The room votes: slow enough? You pulled it off.", "Every rip… is… an… event.", 1, "", 0], ["EVERYONE", "Pass It On", "Every gift-holder hands their unlocked gift to the gift-holder with the next number up. (The highest number hands to the lowest.)", "Say goodbye.", 0, "", 0], ["EVERYONE", "Musical Gifts", "While the music plays, gift-holders keep handing their unlocked gift to the gift-holder with the next number up. When it stops, keep what you’re holding.", "Don’t drop anything fragile.", 0, "music", 0], ["EVERYONE", "Hot Potato", "Gift-holders toss the phone around. Whoever holds it when it buzzes trades gifts with the person who handed it to them.", "Pass it! PASS IT!", 0, "potato", 0], ["EVERYONE", "Phone’s Choice", "The phone picks two gift-holders. They trade gifts.", "The algorithm has spoken.", 0, "pick2", 0], ["EVERYONE", "Birthday Bonus", "The gift-holder with the next birthday may trade gifts with anyone (unlocked gifts only).", "Happy early birthday.", 0, "", 0], ["DUEL", "Rock, Paper, Scissors", "Challenge any gift-holder to Rock, Paper, Scissors, best of three. Win: you may swap gifts.", "No “dynamite.”", 0, "", 0], ["DUEL", "Snowball Toss", "Challenge any gift-holder. Crumple some wrapping paper. One throw each at a cup. Closest wins. Win: you may swap gifts.", "Form matters.", 0, "", 0], ["DUEL", "Dance-Off", "Challenge any gift-holder. 10 seconds of dancing each. The room cheers for the winner. Win: you may swap gifts.", "No mercy.", 1, "", 0], ["DUEL", "Mirror Mirror", "Challenge any gift-holder. For 15 seconds they copy your every move. They laugh or miss a move? You win: you may swap gifts.", "Do the robot.", 1, "", 0], ["VOTE", "Courtroom", "Accuse any gift-holder of having the best gift. They get 10 seconds to argue it’s terrible. The room votes. Guilty? You trade with them.", "Order in the court!", 1, "", 0], ["VOTE", "Santa’s Pick", "The room votes on which gift-holder has the worst gift. They may trade it for any unlocked gift.", "A Christmas miracle.", 0, "", 0], ["TRADE", "Trade Up", "You may trade your gift for any unlocked gift.", "Upgrade season.", 0, "", 0], ["TRADE", "Polite Thief", "Ask anyone holding a gift, very nicely, to trade with you. If they say no, trade anyway.", "Manners are optional.", 0, "", 0], ["TRADE", "Matchmaker", "Pick two other people holding gifts. They trade.", "Act innocent.", 0, "", 0], ["TRADE", "Blind Swap", "Close your eyes. The group points you to someone holding a gift. Trade.", "Trust the process.", 0, "", 0], ["PHEW", "Lock It In", "Your gift is locked right now. Put a bow on it.", "It’s yours forever.", 0, "", 0], ["PHEW", "Game Show Host", "Present your gift like it’s a brand-new car. If the room cheers, it can’t be stolen or traded during the next turn.", "Sell it.", 1, "", 0], ["WILD", "Jackpot", "Draw two more Twists and do both.", "Feeling lucky?", 0, "", 0]];
-/*DATA*/const DATA={"duels": [{"title": "Rock, Paper, Scissors", "text": "One round. Ties go again.", "quip": "Shoot!"}, {"title": "Staring Contest", "text": "Eyes locked. First to blink, look away or laugh loses.", "quip": "Someone will make a face."}, {"title": "Thumb War", "text": "Lock fingers. Pin the other thumb down for a count of 3.", "quip": "One, two, three, four…"}, {"title": "Quick Draw", "text": "Gift on the floor between you, hands on knees. When the phone buzzes, first to touch it wins. Too early? You lose.", "quip": "Steady…", "tool": "quickdraw", "print_text": "Gift between you, hands on knees. The judge shouts “GO!” whenever they like. First to touch the gift wins. Too early? You lose."}, {"title": "Movie Marathon", "text": "Take turns naming holiday movies, thief first. Repeat one or freeze for 3 seconds and you lose.", "quip": "Elf counts once."}, {"title": "Flamingo", "text": "Both stand on one foot, hands off the furniture. First to put the other foot down loses.", "quip": "Wobble wobble."}, {"title": "No Laughing", "text": "Thief gets 15 seconds to make the holder laugh (no touching). Holder laughs? Thief wins. If not, holder wins.", "quip": "Crack up.", "secs": 15, "perform": true}, {"title": "Hot Hands", "text": "Thief’s palms rest on the holder’s palms. Holder gets 3 tries to slap the back of the thief’s hands. 2 slaps? Holder wins.", "quip": "Ow."}, {"title": "Carol Clash", "text": "Each of you sings one line of a holiday song. The room cheers for the winner.", "quip": "Volume counts.", "perform": true}], "showdown": {"type": "LAST CALL", "title": "Last Call", "text": "After the last turn, from Player 1 up: DEAL (offer a swap; yes or no), DUEL (win = swap) or pass. Win or deal: your new gift gets a bow. Lose a duel: theirs does.", "quip": "Peace on earth. Finally."}, "nope": {"title": "Nope", "text": "Use it once to skip anything that makes YOU sing, dance, act or be funny (🎤). Your own Twist? Skip it. A duel? Draw a different duel.", "quip": "Not today, Santa."}};/*END*/
+const DECK=[["UNWRAP", "Not a Peep", "Unwrap without making a sound. The room may try to make you laugh. Not a peep? You pulled it off: you may draw a bonus Twist.", "Shhhh.", 0, "", 0], ["UNWRAP", "Statue", "Unwrap. Up to 3 times, the room claps and raises their hands: freeze for 3 seconds each time. Never moved? You pulled it off: you may draw a bonus Twist.", "Musical statues, gift edition.", 0, "", 0], ["UNWRAP", "Blindfolded", "Eyes closed until the gift is out of the paper. The room shouts directions. Out in 30 seconds? You pulled it off: you may draw a bonus Twist.", "Left. No, YOUR left.", 0, "", 30], ["UNWRAP", "Napkin Hat", "Balance a napkin (or a paper plate) on your head while you unwrap. It never fell? You pulled it off: you may draw a bonus Twist.", "Fashion AND function.", 0, "", 0], ["UNWRAP", "Slow-Mo", "Unwrap in dramatic slow motion, with sound effects. The room votes: slow enough? You pulled it off: you may draw a bonus Twist.", "Every rip… is… an… event.", 1, "", 0], ["EVERYONE", "Pass It On", "Every gift-holder hands their unlocked gift to the gift-holder with the next number up. (The highest number hands to the lowest.)", "Say goodbye.", 0, "", 0], ["EVERYONE", "Musical Gifts", "While the music plays, gift-holders keep handing their unlocked gift to the gift-holder with the next number up. When it stops, keep what you’re holding.", "Don’t drop anything fragile.", 0, "music", 0], ["EVERYONE", "Hot Potato", "Gift-holders toss the phone around. Whoever holds it when it buzzes trades gifts with the person who handed it to them.", "Pass it! PASS IT!", 0, "potato", 0], ["EVERYONE", "Phone’s Choice", "The phone picks one other gift-holder. You trade gifts with them.", "The algorithm has spoken.", 0, "pick2", 0], ["EVERYONE", "Birthday Bonus", "The gift-holder with the next birthday may trade gifts with anyone (unlocked gifts only).", "Happy early birthday.", 0, "", 0], ["DUEL", "Rock, Paper, Scissors", "Challenge any gift-holder to Rock, Paper, Scissors, best of three. Win: you may swap gifts.", "No “dynamite.”", 0, "", 0], ["DUEL", "Snowball Toss", "Challenge any gift-holder. Crumple some wrapping paper. One throw each at a cup. Closest wins. Win: you may swap gifts.", "Form matters.", 0, "", 0], ["DUEL", "Dance-Off", "Challenge any gift-holder. 10 seconds of dancing each. The room cheers for the winner. Win: you may swap gifts.", "No mercy.", 1, "", 0], ["DUEL", "Mirror Mirror", "Challenge any gift-holder. For 15 seconds they copy your every move. They laugh or miss a move? You win: you may swap gifts.", "Do the robot.", 1, "", 0], ["VOTE", "Courtroom", "Accuse any gift-holder of having the best gift. They get 10 seconds to argue it’s terrible. The room votes. Guilty? You trade with them.", "Order in the court!", 1, "", 0], ["VOTE", "Santa’s Pick", "Everyone except you points at the gift-holder with the worst gift. That person may trade it for any unlocked gift (not yours).", "A Christmas miracle.", 0, "", 0], ["TRADE", "Trade Up", "You may trade your gift for any unlocked gift.", "Upgrade season.", 0, "", 0], ["TRADE", "Polite Thief", "Ask anyone holding a gift, very nicely, to trade with you. If they say no, trade anyway.", "Manners are optional.", 0, "", 0], ["TRADE", "Matchmaker", "Pick two other people holding gifts. They trade.", "Act innocent.", 0, "", 0], ["TRADE", "Blind Swap", "Close your eyes. The group points you to someone holding a gift. Trade.", "Trust the process.", 0, "", 0], ["PHEW", "Lock It In", "Your gift is locked right now. Put a bow on it.", "It’s yours forever.", 0, "", 0], ["PHEW", "Game Show Host", "Present your gift like it’s a brand-new car. If the room cheers, it can’t be stolen or traded during the next turn.", "Sell it.", 1, "", 0], ["WILD", "Jackpot", "Draw two more Twists and do both.", "Feeling lucky?", 0, "", 0]];
+/*DATA*/const DATA={"duels": [{"title": "Rock, Paper, Scissors", "text": "One round. Ties go again.", "quip": "Shoot!"}, {"title": "Staring Contest", "text": "Eyes locked. First to blink, look away or laugh loses.", "quip": "Someone will make a face."}, {"title": "Thumb War", "text": "Lock fingers. Pin the other thumb down for a count of 3.", "quip": "One, two, three, four…"}, {"title": "Quick Draw", "text": "Gift on the floor between you, hands on knees. When the phone buzzes, first to touch it wins. Too early? You lose.", "quip": "Steady…", "tool": "quickdraw", "print_text": "Gift between you, hands on knees. The judge shouts “GO!” whenever they like. First to touch the gift wins. Too early? You lose."}, {"title": "Movie Marathon", "text": "Take turns naming holiday movies, thief first. Repeat one or freeze for 3 seconds and you lose.", "quip": "Elf counts once."}, {"title": "Flamingo", "text": "Both stand on one foot, hands off the furniture. First to put the other foot down loses.", "quip": "Wobble wobble."}, {"title": "No Laughing", "text": "Thief gets 15 seconds to make the holder laugh (no touching). Holder laughs? Thief wins. If not, holder wins.", "quip": "Crack up.", "secs": 15, "perform": true}, {"title": "Hot Hands", "text": "Thief’s palms rest on the holder’s palms. Holder gets 3 tries to slap the back of the thief’s hands. 2 slaps? Holder wins.", "quip": "Ow."}, {"title": "Carol Clash", "text": "Each of you sings one line of a holiday song. The room cheers for the winner.", "quip": "Volume counts.", "perform": true}], "showdown": {"type": "LAST CALL", "title": "Last Call", "text": "After the last turn, from Player 1 up: DEAL (offer a swap; yes or no), DUEL (win = swap) or pass. A Deal locks both gifts. Win a duel: your new gift is locked. Lose: theirs is.", "quip": "Peace on earth. Finally."}, "nope": {"title": "Nope", "text": "Use it once to skip anything that makes YOU sing, dance, act or be funny (🎤). Your own Twist? Skip it. A duel? Draw a different duel.", "quip": "Not today, Santa."}};/*END*/
 const DU=DATA.duels||[];
 const LASTCARD=['LAST',DATA.showdown.title,DATA.showdown.text,DATA.showdown.quip];
 const TY=i=>DECK[i][0], NAME=i=>DECK[i][1], PERF=i=>!!DECK[i][4], TOOL=i=>DECK[i][5]||'', SECS=i=>DECK[i][6]||0;
@@ -215,11 +217,11 @@ const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return
 const snap=()=>{hist.push(JSON.stringify(st)); if(hist.length>60) hist.shift()};
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 
-function newGame(players,mode){
+function newGame(players,mode,pass){
   const calm=mode==='ceasefire';
   const pool=DECK.map((c,i)=>i).filter(i=>!(calm&&PERF(i)));
   const duPool=DU.map((c,i)=>i).filter(i=>!(calm&&DU[i].perform));
-  st={players,mode,turn:1,actor:1,thief:null,robbed:false,step:'choose',deck:shuffle(pool),used:[],kept:[],
+  st={players,mode,pass:pass!==false,bowed:[],turn:1,actor:1,thief:null,robbed:false,step:'choose',deck:shuffle(pool),used:[],kept:[],
       duPool,duDeck:shuffle(duPool.slice()),curDu:null,current:null,redrawn:false,pending:0,phase:'',noTwist:false,
       opens:0,flash:'',after:'turnEnd',victim:null,blocked:[],nope:[],lcP:0,lcTarget:null,evResult:'',duRes:'',timerUsed:false,
       afterDibs:'end',nextCard:null,stats:{}};
@@ -290,8 +292,10 @@ function drawFor(p){ st.actor=p; showCard(drawTwist(false),'twist'); }
 function unwrapResult(made){
   snap(); stopTimer(); bump(made?'pulled':'missed'); finishCard();
   st.flash=made?`🎉 Pulled it off! Player ${st.actor} draws another Twist.`:`Nice try! The gift is open. Player ${st.actor}'s turn is over.`;
-  if(made){ fx('PULLED IT OFF!','pulled'); confetti(40); }
-  dibsThen(made?'more':'end');
+  if(made){ fx('PULLED IT OFF!','pulled'); confetti(40); st.step='bonus'; save(); return render(); }
+  dibsThen('end');
+}
+function bonusChoice(yes){ snap(); st.flash=yes?`🎉 Player ${st.actor} draws a bonus Twist.`:`Player ${st.actor} keeps it simple. Turn over.`; dibsThen(yes?'more':'end');
 }
 
 /* ================= STEAL ================= */
@@ -388,7 +392,7 @@ function endTurn(){
 function eventTool(tool){
   snap();
   const players=shuffle(giftHolders());
-  if(tool==='pick2'){ st.evResult=`🎲 Player ${players[0]} and Player ${players[1]} trade gifts! (Skip if either gift is locked.)`; save(); return render(); }
+  if(tool==='pick2'){ const o=players.filter(p=>p!==st.actor); st.evResult=`🎲 Player ${st.actor}, you trade gifts with Player ${o[0]}! (Skip if either gift is locked.)`; save(); return render(); }
   if(tool==='pick1'){ st.evResult=`🎲 Player ${players[0]}, you may trade with anyone (unlocked gifts only)!`; save(); return render(); }
   if(tool==='music'){ const secs=6+Math.random()*10; st.evResult='🎵 Music playing… keep handing gifts to the next number up!'; save(); playMusic(secs,()=>{st.evResult='⏹ MUSIC STOPPED! Keep what you’re holding.';save();render();}); render(); return; }
   if(tool==='potato'){ const secs=8+Math.random()*12; st.evResult='🥔 Pass the phone! It will buzz…'; save(); tick(secs,()=>{st.evResult='💥 BUZZ! Whoever holds the phone trades gifts with the person who handed it to them.';save();render();}); render(); return; }
@@ -402,13 +406,13 @@ function startLastCall(){
 }
 function lcPick(v){ snap(); st.lcTarget=v; st.flash=''; st.step='lcchoice'; save(); render(); }
 function lcDeal(yes){ snap(); const a=st.lcP, b=st.lcTarget;
-  if(yes){ bump('lcSwaps'); bump('deals'); fx('DEAL!','deal'); confetti(30); st.flash=`🤝 Deal! Players ${a} and ${b} swap gifts. Player ${a}'s new gift gets a bow.`; return lcNext(); }
+  if(yes){ bump('lcSwaps'); bump('deals'); fx('DEAL!','deal'); confetti(30); st.bowed=[...new Set([...(st.bowed||[]),a,b])]; st.flash=`🤝 Deal! Players ${a} and ${b} swap gifts. Both gifts get a bow.`; return lcNext(); }
   st.flash=`Player ${b} said no. Player ${a}, duel them or pick someone else.`; st.step='lcchoice'; st.dealRefused=true; save(); render(); }
 function lcDuel(){ snap(); st.curDu=drawDu(); st.duRes=''; st.timerUsed=false; st.flash=''; st.step='lcduel'; save(); render(); }
 function lcResult(won){
   snap(); stopTimer(); pendingEnd=null; const a=st.lcP, b=st.lcTarget;
-  if(won){ bump('lcSwaps'); fx('SWAP!','swap'); st.flash=`🔁 Player ${a} won! Swap gifts. The gift Player ${a} won gets a bow: locked.`; }
-  else { fx('BLOCKED!','block'); st.flash=`🛡 Player ${b} won and keeps their gift. It gets a bow: safe now.`; }
+  if(won){ bump('lcSwaps'); fx('SWAP!','swap'); st.bowed=[...new Set([...(st.bowed||[]),a])]; st.flash=`🔁 Player ${a} won! Swap gifts. The gift Player ${a} won gets a bow: locked.`; }
+  else { fx('BLOCKED!','block'); st.bowed=[...new Set([...(st.bowed||[]),b])]; st.flash=`🛡 Player ${b} won and keeps their gift. It gets a bow: safe now.`; }
   bump('lcDuels'); lcNext();
 }
 function lcPass(){ snap(); st.flash=`Player ${st.lcP} passed.`; lcNext(); }
@@ -495,7 +499,7 @@ function render(){
     else if(st.robbed) why='Your gift was stolen, so you open a wrapped gift (and you get a Twist).';
     else if(!targets.length) why='No gifts available to steal right now.';
     const canSteal=!why && targets.length>0;
-    body=`${flash}<div class="who"><span class="tag">${st.robbed?'YOUR GIFT WAS STOLEN':'YOUR MOVE'}</span><h2>PLAYER ${P}</h2>
+    body=`${flash}${st.pass?`<div class="passbar">📱 Pass the phone to <b>Player ${P}</b></div>`:''}<div class="who"><span class="tag">${st.robbed?'YOUR GIFT WAS STOLEN':'YOUR MOVE'}</span><h2>PLAYER ${P}</h2>
       <p>${canSteal?'Open a wrapped gift or steal an opened one?':'Open a wrapped gift.'}</p></div>
       <div class="choices">
         <button class="choice open" onclick="chooseOpen()">${GIFT}<div><b>OPEN A GIFT</b><span>${st.opens===0?'Unwrap the first gift':'Draw a Twist card, unwrap, do the card'}</span></div></button>
@@ -532,7 +536,7 @@ function render(){
       const c=DECK[i], keep=KEEPLIKE(i), uw=st.phase==='unwrap', tool=TOOL(i), secs=SECS(i);
       const snooze=!keep&&keptBy(P,'Snooze')>-1, isJack=NAME(i)==='Jackpot', running=!!pendingEnd;
       let primary;
-      const toolBtn={music:'▶ Start the music',potato:'🥔 Start Hot Potato',pick2:'🎲 Pick two gift-holders',pick1:'🎲 Pick a gift-holder'}[tool];
+      const toolBtn={music:'▶ Start the music',potato:'🥔 Start Hot Potato',pick2:'🎲 Pick who you trade with',pick1:'🎲 Pick a gift-holder'}[tool];
       if(uw) primary=`${secs&&!st.timerUsed?`<button class="btn p" onclick="startTimer(${secs})">⏱ Start the ${secs}-second timer</button>`:''}${secs&&st.timerUsed?`<div class="timer" id="timer">${secs}s</div>`:''}
         <div class="row"><button class="btn y" onclick="unwrapResult(true)">Pulled it off ✓</button><button class="btn g" onclick="unwrapResult(false)">Didn't ✗</button></div>`;
       else if(isJack) primary=`<button class="btn p" onclick="nextJackpot()">🎰 Draw card 1 of 2</button>`;
@@ -580,15 +584,23 @@ function render(){
       </div>
       ${st.dealRefused?'':`<button class="btn g" onclick="lcDeal(false)">They said no</button>`}
       <button class="btn ghost" onclick="undo()">← Pick someone else</button>
-      ${howTo([`<b>Deal:</b> Player ${a} offers a swap out loud. Player ${v} says yes or no.`,`<b>Duel:</b> draw a Steal Duel. Win = swap gifts.`,`Deal or duel win: Player ${a}'s new gift gets a bow. Duel lost: Player ${v}'s gift gets a bow.`])}`;
+      ${howTo([`<b>Deal:</b> Player ${a} offers a swap out loud. Player ${v} says yes or no.`,`<b>Duel:</b> draw a Steal Duel. Win = swap gifts.`,`Deal: both gifts get a bow. Duel win: Player ${a}'s new gift gets a bow. Duel lost: Player ${v}'s gift gets a bow.`])}`;
+  }
+  else if(st.step==='bonus'){
+    body=`${flash}<div class="who"><span class="tag">🎉 PULLED IT OFF</span><h2>PLAYER ${P}</h2><p>You earned a bonus Twist. Want it? It might help you… or not.</p></div>
+      <div class="choices">
+        <button class="choice open" onclick="bonusChoice(true)">${GIFT}<div><b>DRAW A BONUS TWIST</b><span>Feeling lucky</span></div></button>
+        <button class="choice steal" onclick="bonusChoice(false)">${HAND}<div><b>NO THANKS</b><span>Keep my gift, end my turn</span></div></button>
+      </div>`;
   }
   else if(st.step==='lc'){
-    const a=st.lcP, others=Array.from({length:st.players},(_,k)=>k+1).filter(p=>p!==a);
+    const a=st.lcP, bw=st.bowed||[], mine=bw.includes(a), others=Array.from({length:st.players},(_,k)=>k+1).filter(p=>p!==a);
     body=`${flash}${st.lcP===1?`<div class="warn">🏆 LAST CALL! From Player 1 up, each player gets one last chance: make a deal or duel for a gift.</div>`:''}
       <div class="who"><span class="tag">LAST CALL · ${a} OF ${st.players}</span><h2>PLAYER ${a}</h2><p>Want someone's gift? Pick them, then make a deal or duel. Or pass.</p></div>
-      <div class="grid">${others.map(p=>`<button onclick="lcPick(${p})">P${p}</button>`).join('')}</div>
+      ${st.pass?`<div class="passbar">📱 Pass the phone to <b>Player ${a}</b></div>`:''}
+      ${mine?`<div class="warn">🎀 Player ${a}'s gift already has a bow, so it can't be traded. Tap Pass.</div>`:`<div class="grid">${others.map(p=>bw.includes(p)?`<button disabled title="Has a bow">🎀P${p}</button>`:`<button onclick="lcPick(${p})">P${p}</button>`).join('')}</div>`}
       <button class="btn g" onclick="lcPass()">Pass: I'm happy</button>
-      ${howTo([`Both gifts must be unlocked (no bow).`,`<b>Deal:</b> offer a swap; they say yes or no. <b>Duel:</b> win = swap and your new gift gets a bow; lose = their gift gets a bow. Passing locks nothing.`,a<st.players?`Then Player ${a+1} gets their Last Call.`:`This is the last one. Then the game is over!`])}`;
+      ${howTo([`Both gifts must be unlocked (no bow). 🎀 = got a bow in Last Call. Skip anyone whose gift got a bow earlier in the game too.`,`<b>Deal:</b> offer a swap; they say yes or no. Both gifts get a bow. <b>Duel:</b> win = swap and your new gift gets a bow; lose = their gift gets a bow. Passing locks nothing.`,a<st.players?`Then Player ${a+1} gets their Last Call.`:`This is the last one. Then the game is over!`])}`;
   }
   const ck=st.step+'|'+st.current+'|'+st.curDu+'|'+st.turn+'|'+st.lcP+'|'+st.actor, fresh=ck!==window._ck;
   $('app').innerHTML=header()+`<div class="stage${fresh?' enter':''}">${body}</div>`;
@@ -611,7 +623,7 @@ function renderEnd(){
       return rows.length?`<div class="recap"><div class="lbl">TONIGHT'S DAMAGE</div>${rows.map(r=>`<div><span>${r[0]} ${r[1]}</span><b>${r[2]}</b></div>`).join('')}</div>`:''})()}
     <button class="btn y" onclick="toSetup()">Play again</button></div>`;
 }
-let setupPlayers=8, setupMode='classic';
+let setupPlayers=8, setupMode='classic', setupPass=true;
 function renderSetup(){
   const saved=load(); const canResume=saved&&saved.step&&saved.step!=='end';
   $('app').innerHTML=`<div class="tape"></div><div class="setup">
@@ -629,10 +641,11 @@ function renderSetup(){
       <li><b class="n">4</b><span>One person holds this phone, reads every card out loud, and turns the sound up.</span></li></ul></div>
     ${canResume?`<button class="btn g" onclick="resume()">↺ Resume last game</button>`:''}
     <button class="btn ghost" onclick="openRules()">How to play</button>
+    <button class="mode" aria-pressed="${setupPass}" onclick="setupPass=!setupPass;renderSetup()" style="width:100%;margin-top:10px"><b>📱 Pass the phone: ${setupPass?'ON':'OFF'}</b><span>${setupPass?'The phone goes to whoever\'s turn it is, so the host gets to play too.':'One person holds the phone and reads everything.'}</span></button>
     <button class="btn g" onclick="soundCheck()">🔊 Sound check</button>
     <p class="why">No sound? Turn the volume up. On iPhone, also check the silent switch.</p>
     <p class="why">Tip: add this page to your home screen (Share → Add to Home Screen) to open it like an app.</p></div>
-    <div class="dock"><button class="btn y" onclick="newGame(setupPlayers,setupMode)">START GAME →</button></div>`;
+    <div class="dock"><button class="btn y" onclick="newGame(setupPlayers,setupMode,setupPass)">START GAME →</button></div>`;
 }
 function setP(d){setupPlayers=Math.max(4,Math.min(20,setupPlayers+d));renderSetup()}
 function setM(m){setupMode=m;renderSetup()}
@@ -657,13 +670,13 @@ function openRules(){
   sheet(`<div class="rules"><h3>HOW TO PLAY</h3>
     <p><b>Read out loud:</b> "It's white elephant with a twist. On your turn, open a wrapped gift or steal an opened one. Open: you draw a Twist card. Steal: beat the gift's holder in a quick duel. Win, and they open a gift. Lose, and you open one instead. Everyone gets one Nope to skip performing. At the end: Last Call!"</p>
     <ul><li>The app tells you whose move it is and only shows the choices you have.</li>
-    <li><b>Opening:</b> draw a Twist. <b>UNWRAP</b> card? Do it while you unwrap. Pull it off and you draw another Twist. Any other card: unwrap first, then do it.</li>
+    <li><b>Opening:</b> draw a Twist. <b>UNWRAP</b> card? Do it while you unwrap. Pull it off and you may draw a bonus Twist. Any other card: unwrap first, then do it.</li>
     <li><b>Stealing:</b> you and the gift's holder play a quick <b>Steal Duel</b>. Win: take the gift; they open a gift. Lose: you open a gift instead (with a Twist). Can't tell who won? The holder wins.</li>
     <li><b>No left or right:</b> gifts move by player number. The highest number hands to the lowest.</li>
     <li><b>The room</b> = everyone. Everyone votes and cheers. Only gift-holders get picked or have gifts moved. Tied vote: the host decides.</li>
     <li><b>NOPE:</b> once per game, skip anything that makes <b>you</b> sing, dance, act or be funny (🎤). Your own Twist: skip it. A duel: draw a different duel. Someone else's card: skip your part.</li>
     <li>A gift is <b>locked</b> after its 3rd steal (2nd with fewer than 8 players). Put a bow on it.</li>
-    <li><b>Last Call:</b> from Player 1 up, each player may <b>deal</b> (offer a swap; they say yes or no), <b>duel</b> anyone (win = swap) or pass. Win or deal: your new gift gets a bow. Lose a duel: their gift gets a bow.</li>
+    <li><b>Last Call:</b> from Player 1 up, each player may <b>deal</b> (offer a swap; they say yes or no), <b>duel</b> anyone (win = swap) or pass. A Deal bows both gifts. Win a duel: your new gift gets a bow. Lose a duel: their gift gets a bow.</li>
     <li>Card can't happen? Tap <b>Can't happen</b> to redraw once.</li></ul></div>`);
 }
 render();
