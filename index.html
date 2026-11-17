@@ -73,7 +73,7 @@ button{font:inherit;cursor:pointer}
 
 /* card */
 .cardwrap{width:min(100%,320px);margin:6px auto 4px}
-.lastc{max-width:270px;margin-inline:auto}.card{background:#fff;border-radius:22px;padding:9px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:flip .45s ease-out both}
+.lastc{max-width:270px;margin-inline:auto}.card{background:#fff;border-radius:22px;padding:9px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
 @keyframes flip{from{transform:rotateY(70deg) scale(.92);opacity:0}to{transform:none;opacity:1}}
 .card .in{border:4px solid #111;border-radius:15px;overflow:hidden;display:flex;flex-direction:column;min-height:380px;color:#111}
 .card .band{background:var(--c);color:#fff;font-family:Bungee;font-size:17px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #111}
@@ -129,6 +129,47 @@ button{font:inherit;cursor:pointer}
 .who h2 small{font-size:.5em;opacity:.7;margin:0 .2em}
 .buzzflash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;font-family:Bungee,sans-serif;font-size:64px;color:#111;background:#ffd400;animation:bz .25s steps(2) 4;pointer-events:none;text-align:center}
 @keyframes bz{0%{background:#ffd400}50%{background:#ff2e88;color:#fff}}
+/* ===== animations ===== */
+.card{animation:deal .65s cubic-bezier(.2,1.35,.35,1) both;transform-origin:50% 120%}
+@keyframes deal{0%{transform:translateY(-70vh) rotate(-18deg) rotateY(90deg) scale(.55);opacity:0}55%{transform:translateY(12px) rotate(3deg) rotateY(0) scale(1.04);opacity:1}100%{transform:none;opacity:1}}
+.card .in{position:relative}
+.card .in::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.75) 50%,transparent 65%);transform:translateX(-120%);animation:shine 1s .55s ease-out both;pointer-events:none}
+@keyframes shine{to{transform:translateX(120%)}}
+.card[data-t=EVERYONE] .art svg{animation:wobble 1.2s .6s ease-in-out 2}
+.card[data-t=DUEL] .art svg{animation:spinin .7s .45s cubic-bezier(.2,1.6,.4,1) both}
+.card[data-t=WILD] .art svg{animation:sparkle 1.4s .5s ease-in-out infinite}
+.card[data-t=UNWRAP] .art svg{animation:hop .5s .6s ease-out 3}
+.card[data-t=VOTE] .art svg{animation:hop .45s .6s ease-out 2}
+.card[data-t=TRADE] .art svg{animation:slide 1s .6s ease-in-out 2}
+.card[data-t=LAST]{animation:deal .65s cubic-bezier(.2,1.35,.35,1) both,glow 1.6s .7s ease-in-out infinite}
+@keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-12deg) scale(1.1)}75%{transform:rotate(12deg) scale(1.1)}}
+@keyframes spinin{from{transform:rotate(-360deg) scale(0)}to{transform:none}}
+@keyframes sparkle{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 #ffd400)}50%{transform:scale(1.18) rotate(15deg);filter:drop-shadow(0 0 10px #ffd400)}}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-12px)}}
+@keyframes slide{0%,100%{transform:translateX(0)}30%{transform:translateX(-10px)}70%{transform:translateX(10px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,212,0,.6),0 24px 60px rgba(0,0,0,.6)}50%{box-shadow:0 0 0 14px rgba(255,212,0,0),0 24px 60px rgba(0,0,0,.6)}}
+.stage.enter>*{animation:rise .4s ease-out both}
+.stage.enter>*:nth-child(2){animation-delay:.06s}.stage.enter>*:nth-child(3){animation-delay:.12s}.stage.enter>*:nth-child(4){animation-delay:.18s}.stage.enter>*:nth-child(5){animation-delay:.24s}.stage.enter>*:nth-child(n+6){animation-delay:.3s}
+@keyframes rise{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+.stage.enter .who h2{animation:punch .55s cubic-bezier(.2,1.7,.4,1) both}
+@keyframes punch{0%{transform:scale(2.2);opacity:0;filter:blur(8px)}100%{transform:none;opacity:1;filter:none}}
+.stage.enter .choice{animation:rise .45s cubic-bezier(.2,1.4,.4,1) both}.stage.enter .choice+.choice{animation-delay:.12s}
+.choice,.btn,.grid button{transition:transform .12s}.choice:active,.btn:active,.grid button:active{transform:scale(.96)}
+.vl,.vr,.vs{display:inline-block}
+.stage.enter .vl{animation:fromL .5s cubic-bezier(.2,1.5,.4,1) both}.stage.enter .vr{animation:fromR .5s cubic-bezier(.2,1.5,.4,1) both}.stage.enter .vs{animation:vs .6s .3s cubic-bezier(.2,1.8,.4,1) both;color:var(--p)}
+@keyframes fromL{from{transform:translateX(-60vw)}to{transform:none}}@keyframes fromR{from{transform:translateX(60vw)}to{transform:none}}
+@keyframes vs{from{transform:scale(0) rotate(-200deg)}to{transform:none}}
+.timer.hot{animation:pulse .5s ease-in-out infinite}@keyframes pulse{50%{transform:scale(1.12)}}
+.fx{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}
+.fx::before{content:"";position:absolute;width:160vmax;height:160vmax;background:repeating-conic-gradient(var(--fx) 0 10deg,transparent 10deg 20deg);opacity:.35;animation:rays 1.2s linear both}
+.fx b{position:relative;font-family:Bungee,sans-serif;font-weight:400;font-size:clamp(44px,15vw,84px);line-height:.95;text-align:center;color:#fff;padding:14px 22px;background:var(--fx);border:5px solid #111;border-radius:18px;box-shadow:0 12px 0 #111;animation:fxpop 1.2s cubic-bezier(.2,1.6,.4,1) both;transform:rotate(-4deg)}
+@keyframes fxpop{0%{transform:scale(0) rotate(-20deg);opacity:0}25%{transform:scale(1.15) rotate(-4deg);opacity:1}75%{transform:scale(1) rotate(-4deg);opacity:1}100%{transform:scale(1.4) rotate(-4deg);opacity:0}}
+@keyframes rays{from{transform:rotate(0) scale(.6);opacity:.5}to{transform:rotate(60deg) scale(1);opacity:0}}
+.confetti{position:fixed;top:-20px;width:10px;height:16px;z-index:61;pointer-events:none;border-radius:2px;animation:fall var(--d) linear var(--w) both}
+@keyframes fall{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--x),110vh) rotate(var(--r));opacity:.9}}
+.end .logo{animation:punch .8s cubic-bezier(.2,1.7,.4,1) both}
+.end .recap{animation:rise .6s .4s ease-out both}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.fx,.confetti{display:none}}
 .sdlast{text-align:center;font-size:13px;color:#8fe3b0;margin:-4px 0 2px}
 .duelc .card .in{min-height:0}.duelc .card .art{height:44px}.duelc .card .t{margin-top:10px}.duelc .card .x{padding:4px 16px 10px}
 </style>
@@ -249,6 +290,7 @@ function drawFor(p){ st.actor=p; showCard(drawTwist(false),'twist'); }
 function unwrapResult(made){
   snap(); stopTimer(); bump(made?'pulled':'missed'); finishCard();
   st.flash=made?`🎉 Pulled it off! Player ${st.actor} draws another Twist.`:`Nice try! The gift is open. Player ${st.actor}'s turn is over.`;
+  if(made){ fx('PULLED IT OFF!','pulled'); confetti(40); }
   dibsThen(made?'more':'end');
 }
 
@@ -263,7 +305,7 @@ function startDuel(v){ st.victim=v; st.curDu=drawDu(); st.duRes=''; st.timerUsed
 function duelResult(thiefWon){
   snap(); stopTimer(); pendingEnd=null; const v=st.victim, t=st.actor;
   if(thiefWon) return doSteal(v);
-  bump('defended');
+  bump('defended'); fx('BLOCKED!','block');
   st.flash=`🛡 Player ${v} won the duel and keeps their gift. Player ${t} opens a gift instead.`;
   chooseOpen(true);
 }
@@ -291,7 +333,7 @@ function rtsAnswer(use){
   afterSteal(thief,v);
 }
 function afterSteal(thief,v){
-  st.blocked=[]; bump('steals');
+  st.blocked=[]; bump('steals'); fx('STOLEN!','steal');
   st.flash=`🖐 Player ${thief} won the duel and took Player ${v}'s gift! (Its ${st.players<8?'2nd':'3rd'} steal? Put a bow on it: locked.)`;
   if(st.mode==='allout'){ st.after='victim'; st.nextActor=v; st.nextThief=thief; drawFor(thief); return; }
   st.actor=v; st.thief=thief; st.robbed=true; st.step='choose'; save(); render();
@@ -312,13 +354,13 @@ function useSnooze(){
   showCard(drawTwist(st.phase==='unwrap'),st.phase);
 }
 function useNope(p){
-  snap(); st.nope.push(p); bump('nopes'); stopTimer(); stopMusic(); pendingEnd=null;
+  snap(); st.nope.push(p); bump('nopes'); fx('NOPE!','nope'); stopTimer(); stopMusic(); pendingEnd=null;
   if(st.step==='card'){ // Nope your own Twist: skip it (no redraw)
     st.used.push(st.current); st.current=null;
     st.flash=`🙅 Player ${p} said NOPE: card skipped.${st.phase==='unwrap'?' Just unwrap the gift.':''}`; return cardDone(true); }
 }
 function nopeDuel(p){ // Nope in a duel: draw a different duel that nobody has to perform
-  snap(); st.nope.push(p); bump('nopes'); stopTimer(); pendingEnd=null;
+  snap(); st.nope.push(p); bump('nopes'); fx('NOPE!','nope'); stopTimer(); pendingEnd=null;
   let d=drawDu(); for(let n=0;n<20&&DU[d].perform;n++){ st.duDeck.unshift(d); d=drawDu(); }
   st.curDu=d; st.duRes=''; st.timerUsed=false; st.flash=`🙅 Player ${p} said NOPE. Different duel:`; save(); render();
 }
@@ -355,18 +397,18 @@ function eventTool(tool){
 /* ================= LAST CALL ================= */
 function startLastCall(){
   const n=st.kept.length; st.kept.forEach(k=>st.used.push(k.i)); st.kept=[];
-  st.flash='';
+  st.flash=''; fx('LAST CALL!','last');
   st.step='lc'; st.lcP=1; save(); render();
 }
 function lcPick(v){ snap(); st.lcTarget=v; st.flash=''; st.step='lcchoice'; save(); render(); }
 function lcDeal(yes){ snap(); const a=st.lcP, b=st.lcTarget;
-  if(yes){ bump('lcSwaps'); bump('deals'); st.flash=`🤝 Deal! Players ${a} and ${b} swap gifts. Player ${a}'s new gift gets a bow.`; return lcNext(); }
+  if(yes){ bump('lcSwaps'); bump('deals'); fx('DEAL!','deal'); confetti(30); st.flash=`🤝 Deal! Players ${a} and ${b} swap gifts. Player ${a}'s new gift gets a bow.`; return lcNext(); }
   st.flash=`Player ${b} said no. Player ${a}, duel them or pick someone else.`; st.step='lcchoice'; st.dealRefused=true; save(); render(); }
 function lcDuel(){ snap(); st.curDu=drawDu(); st.duRes=''; st.timerUsed=false; st.flash=''; st.step='lcduel'; save(); render(); }
 function lcResult(won){
   snap(); stopTimer(); pendingEnd=null; const a=st.lcP, b=st.lcTarget;
-  if(won){ bump('lcSwaps'); st.flash=`🔁 Player ${a} won! Swap gifts. The gift Player ${a} won gets a bow: locked.`; }
-  else st.flash=`🛡 Player ${b} won and keeps their gift. It gets a bow: safe now.`;
+  if(won){ bump('lcSwaps'); fx('SWAP!','swap'); st.flash=`🔁 Player ${a} won! Swap gifts. The gift Player ${a} won gets a bow: locked.`; }
+  else { fx('BLOCKED!','block'); st.flash=`🛡 Player ${b} won and keeps their gift. It gets a bow: safe now.`; }
   bump('lcDuels'); lcNext();
 }
 function lcPass(){ snap(); st.flash=`Player ${st.lcP} passed.`; lcNext(); }
@@ -414,11 +456,15 @@ function useKept(idx){ // from the hand sheet
   st.flash=`Player ${k.p} used ${NAME(k.i)}.`; closeSheet(); save(); render();
 }
 
+/* ===== big-moment effects ===== */
+const FXC={steal:'#ff2e88',block:'#2b6fff',deal:'#14a06a',swap:'#ff6a00',pulled:'#00a8c6',last:'#c99700',nope:'#8a3ffc'};
+function fx(text,kind){ try{ const d=document.createElement('div'); d.className='fx'; d.style.setProperty('--fx',FXC[kind]||'#ff2e88'); d.innerHTML='<b>'+text+'</b>'; document.body.appendChild(d); setTimeout(()=>d.remove(),1250); }catch(e){} }
+function confetti(n=50,spread=1){ try{ const cols=['#ffd400','#ff2e88','#00a8c6','#8a3ffc','#14a06a','#ff6a00','#fff']; for(let i=0;i<n;i++){ const c=document.createElement('i'); c.className='confetti'; c.style.left=(Math.random()*100)+'vw'; c.style.background=cols[i%cols.length]; c.style.setProperty('--x',((Math.random()-.5)*60)+'vw'); c.style.setProperty('--r',(Math.random()*1080-540)+'deg'); c.style.setProperty('--d',(1.6+Math.random()*1.6)*spread+'s'); c.style.setProperty('--w',(Math.random()*.6*spread)+'s'); document.body.appendChild(c); setTimeout(()=>c.remove(),(4.2*spread+.6)*1000); } }catch(e){} }
 /* ================= RENDER ================= */
 const $=id=>document.getElementById(id);
 function cardHTML(c,lab,sub,foot,perform){
   const t=c[0], label=lab||(t==='LAST'?'LAST CALL':t), dk=(t==='KEEP'||t==='LAST');
-  return `<div class="cardwrap"><div class="card${dk?' dk':''}${t==='LAST'?' lastc':''}" style="--c:var(--${t})"><div class="in">
+  return `<div class="cardwrap"><div class="card${dk?' dk':''}${t==='LAST'?' lastc':''}" data-t="${t}" style="--c:var(--${t})"><div class="in">
     <div class="band"><span>${label}</span><i>${perform?'🎤 ':''}${sub||(t==='LAST'?'FINALE':'TWIST')}</i></div>
     <div class="t">${c[1]}</div><div class="art">${ICON[t]||GIFT}</div>
     <div class="x"><span>${c[2]}<em>${c[3]}</em></span></div>
@@ -516,7 +562,7 @@ function render(){
     const lc=st.step==='lcduel', d=DU[st.curDu], T=lc?st.lcP:P, V=lc?st.lcTarget:st.victim;
     const nb=p=>canNope(p)?`<button class="btn ghost" onclick="nopeDuel(${p})">🙅 Player ${p} says NOPE (different duel)</button>`:'';
     const nopes=d.perform?nb(T)+nb(V):'';
-    body=`${st.flash?`<div class="sdlast">${st.flash.split('|').join(' ')}</div>`:''}<div class="who"><span class="tag">${lc?'🔁 LAST CALL DUEL':'🖐 STEAL DUEL'}</span><h2>P${T} <small>VS</small> P${V}</h2></div>
+    body=`${st.flash?`<div class="sdlast">${st.flash.split('|').join(' ')}</div>`:''}<div class="who"><span class="tag">${lc?'🔁 LAST CALL DUEL':'🖐 STEAL DUEL'}</span><h2><span class="vl">P${T}</span> <small class="vs">VS</small> <span class="vr">P${V}</span></h2></div>
       <div class="duelc">${cardHTML(['DUEL',d.title,d.text,d.quip],lc?'LAST CALL':'STEAL DUEL',lc?'WIN = SWAP':'WINNER GETS IT',`Thief = Player ${T} · Gift-holder = Player ${V}. Can’t tell who won? The gift-holder wins.`,d.perform)}</div>
       ${duelTools(d)}
       <div class="row"><button class="btn y" onclick="${lc?'lcResult(true)':'duelResult(true)'}">P${T} won 🖐</button><button class="btn y" onclick="${lc?'lcResult(false)':'duelResult(false)'}">P${V} won 🛡</button></div>
@@ -544,8 +590,9 @@ function render(){
       <button class="btn g" onclick="lcPass()">Pass: I'm happy</button>
       ${howTo([`Both gifts must be unlocked (no bow).`,`<b>Deal:</b> offer a swap; they say yes or no. <b>Duel:</b> win = swap and your new gift gets a bow; lose = their gift gets a bow. Passing locks nothing.`,a<st.players?`Then Player ${a+1} gets their Last Call.`:`This is the last one. Then the game is over!`])}`;
   }
-  $('app').innerHTML=header()+`<div class="stage">${body}</div>`;
-  const ck=st.step+'|'+st.current+'|'+st.curDu+'|'+st.turn+'|'+st.lcP; if(ck===window._ck) document.querySelectorAll('.card').forEach(c=>c.style.animation='none'); window._ck=ck;
+  const ck=st.step+'|'+st.current+'|'+st.curDu+'|'+st.turn+'|'+st.lcP+'|'+st.actor, fresh=ck!==window._ck;
+  $('app').innerHTML=header()+`<div class="stage${fresh?' enter':''}">${body}</div>`;
+  if(!fresh) document.querySelectorAll('.card').forEach(c=>c.style.animation='none'); window._ck=ck;
   window.scrollTo(0,0);
 }
 const howTo=(items,top)=>`<ol class="how2${top?' top':''}">${items.map(x=>`<li>${x}</li>`).join('')}</ol>`;
@@ -557,6 +604,7 @@ function duelTools(d){
   return '';
 }
 function renderEnd(){
+  if(window._ck!=='end'){ window._ck='end'; confetti(110,1.4); }
   $('app').innerHTML=`<div class="tape"></div><div class="stage end"><h1 class="logo">PEACE<br><em>ON EARTH.</em></h1>
     <p style="color:#ddd;font-size:16px">Finally. Everyone keeps the gift they're holding.</p>
     ${(()=>{const x=(st&&st.stats)||{}; const rows=[['🎁','Gifts opened',x.opens],['🖐','Steal Duels won',x.steals],['🛡','Gifts defended',x.defended],['🃏','Twist cards',x.twists],['🎉','Unwraps pulled off',x.pulled],['👥','Whole-room cards',x.everyone],['🔁','Last Call swaps',x.lcSwaps],['🙅','Nopes',x.nopes]].filter(r=>r[2]);
