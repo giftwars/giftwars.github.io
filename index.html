@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e12">
+<title>Gift Wars</title>
+<meta name="description" content="The phone companion for Gift Wars, the white elephant gift game: cards, duels, timers and music.">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gift Wars">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#ffd400;--p:#ff2e88;--bg:#0e0e12;--panel:#191920;--panel2:#22222b;--line:#30303b;--txt:#f4f4f4;--mut:#a3a3ad;
+ --TRADE:#ff2e88;--VOTE:#2b6fff;--EVERYONE:#8a3ffc;--KEEP:#c99700;--DUEL:#ff6a00;--PHEW:#14a06a;--WILD:#000;--LAST:#ffd400;--UNWRAP:#00a8c6}
+.timer{font-family:Bungee;font-size:54px;text-align:center;margin:4px 0 0;color:var(--txt)}
+.timer.hot{color:var(--p)}.timer.done{color:var(--y);font-size:40px}
+.card.evc .band{background:repeating-linear-gradient(-45deg,#ffd400 0 14px,#111 14px 28px);color:#111}
+.card.evc .band span,.card.evc .band i{background:#ffd400;padding:2px 6px;border-radius:4px}
+.card.evc .art{color:#d10050}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,system-ui,sans-serif}
+body{display:flex;justify-content:center;min-height:100vh}
+button{font:inherit;cursor:pointer}
+.app{width:100%;max-width:480px;min-height:100vh;padding:0 16px 28px;display:flex;flex-direction:column}
+.tape{height:12px;background:repeating-linear-gradient(-45deg,var(--y) 0 10px,#111 10px 20px);margin:0 -16px}
+.logo{font-family:Bungee,sans-serif;font-weight:400;line-height:.9;text-shadow:0 0 18px rgba(255,46,136,.55)}
+.logo em{font-style:normal;color:var(--y);text-shadow:0 0 18px rgba(255,212,0,.45)}
+
+/* header */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 0 6px}
+.hdr .logo{font-size:20px}
+.hdr .right{display:flex;gap:8px}
+.pill{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:7px 12px;font-size:12px;font-weight:800}
+.pill.gold{background:#3a300a;border-color:#7a6410;color:var(--y)}
+.progress{display:flex;gap:4px;margin:4px 0 2px}
+.progress i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.progress i.done{background:var(--y)}.progress i.now{background:var(--p)}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);font-weight:700;margin-bottom:6px}
+
+/* stage */
+.stage{flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px 0}
+.who{text-align:center;margin-bottom:6px}
+.who .tag{display:inline-block;font-weight:900;font-size:11px;letter-spacing:.18em;color:var(--p);margin-bottom:6px}
+.who h2{font-family:Bungee;font-weight:400;font-size:46px;line-height:1;margin:0}
+.who p{margin:8px 0 0;color:#ddd;font-size:16px;line-height:1.4}
+.flash{background:#14301f;border:1px solid #1f6b40;color:#b8f5cf;border-radius:12px;padding:10px 12px;font-size:14px;font-weight:700;text-align:center;margin:0 0 12px}
+.warn{background:#2a1f48;border:1px solid #5b3fb0;color:#e2d6ff;border-radius:12px;padding:10px 12px;font-size:14px;font-weight:800;text-align:center;margin:0 0 12px}
+.choices{display:grid;gap:12px;margin-top:18px}
+.choice{border:0;border-radius:20px;padding:20px 18px;display:flex;align-items:center;gap:16px;text-align:left;color:#111;min-height:96px}
+.choice svg{width:44px;height:44px;flex:none}
+.choice b{display:block;font-family:Bungee;font-weight:400;font-size:24px;line-height:1}
+.choice span{display:block;font-size:14px;font-weight:700;margin-top:6px;opacity:.85}
+.choice.open{background:var(--p);color:#fff}
+.choice.steal{background:var(--y)}
+.how2{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px 10px 30px;margin:12px 0 0;font-size:13.5px;color:#d6d6dc;line-height:1.45}.how2 li{margin:2px 0}.how2 b{color:#fff}.how2.top{margin:0 0 12px}
+.why{text-align:center;color:var(--mut);font-size:13px;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.grid button{height:64px;border-radius:16px;border:2px solid var(--line);background:var(--panel2);color:var(--txt);font-family:Bungee;font-size:22px}
+.grid button:active{background:var(--y);color:#111}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:17px;font-weight:900;font-size:17px;margin-top:10px}
+.btn.y{background:var(--y);color:#111}.btn.p{background:var(--p);color:#fff}
+.btn.g{background:var(--panel2);color:var(--txt);border:2px solid var(--line)}
+.btn.ghost{background:none;color:var(--mut);font-weight:700;font-size:14px;padding:10px;text-decoration:underline}
+.prompt{background:var(--panel);border:2px solid var(--y);border-radius:18px;padding:18px;text-align:center}
+.prompt h3{font-family:Bungee;font-weight:400;font-size:24px;margin:0 0 6px;color:var(--y)}
+.prompt p{margin:0 0 6px;color:#ddd;font-size:15px;line-height:1.45}
+.row{display:flex;gap:10px}.row>*{flex:1}
+
+/* card */
+.cardwrap{width:min(100%,320px);margin:6px auto 4px}
+.lastc{max-width:270px;margin-inline:auto}.card{background:#fff;border-radius:22px;padding:9px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:flip .45s ease-out both}
+@keyframes flip{from{transform:rotateY(70deg) scale(.92);opacity:0}to{transform:none;opacity:1}}
+.card .in{border:4px solid #111;border-radius:15px;overflow:hidden;display:flex;flex-direction:column;min-height:380px;color:#111}
+.card .band{background:var(--c);color:#fff;font-family:Bungee;font-size:17px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #111}
+.card .band i{font-family:Inter;font-style:normal;font-weight:900;font-size:10px;letter-spacing:.16em}
+.card.dk .band{color:#111}
+.card .t{font-family:Bungee;font-size:27px;text-align:center;margin:16px 12px 6px;line-height:1.05}
+.card .art{height:62px;display:flex;justify-content:center;color:var(--c)}
+.card .art svg{height:100%}
+.card .x{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 18px;font-size:17px;line-height:1.35}
+.card .x em{display:block;font-weight:800;font-style:italic;color:var(--c);margin-top:10px;font-size:15px}
+.card.lastc .x em{color:#111}
+.card .how{margin:0 12px 10px;background:#f1efe8;border-radius:10px;padding:8px 10px;font-size:12.5px;font-weight:800;text-align:center}
+.card .st{height:15px;border-top:3px solid #111;background:repeating-linear-gradient(-45deg,var(--y) 0 10px,#111 10px 20px)}
+.drew{text-align:center;color:#ddd;font-size:15px;margin:2px 0 6px}
+.drew b{color:var(--y)}
+
+/* setup */
+.setup{padding-bottom:96px}
+.setup h1{font-size:46px;text-align:center;margin:18px 0 6px}
+.dock{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:12px 16px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%);z-index:5}
+.dock .btn{max-width:448px;margin:0;font-size:19px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.sub{text-align:center;color:var(--p);font-weight:900;letter-spacing:.16em;font-size:11px;margin-bottom:16px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:10px 0}
+.lbl{font-weight:900;font-size:11px;letter-spacing:.16em;color:var(--mut);margin-bottom:10px}
+.stepper{display:flex;align-items:center;justify-content:space-between}
+.stepper button{width:56px;height:56px;border-radius:16px;border:2px solid var(--line);background:var(--panel2);color:var(--txt);font-size:28px;font-weight:900}
+.stepper output{font-family:Bungee;font-size:44px}
+.modes{display:grid;gap:8px}
+.mode{border:2px solid var(--line);border-radius:14px;padding:11px 13px;background:var(--panel2);text-align:left;color:var(--txt)}
+.mode b{font-family:Bungee;font-weight:400;font-size:16px;display:block}
+.mode span{font-size:13px;color:var(--mut)}
+.mode[aria-pressed="true"]{border-color:var(--y);background:#2a2614}
+.steps3{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.steps3 li{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.4;color:#ddd}
+.steps3 li b.n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--y);color:#111;font-family:Bungee;display:flex;align-items:center;justify-content:center;font-size:13px}
+
+/* sheet */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet .panel{background:var(--panel);width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:18px 16px 26px;max-height:85vh;overflow:auto;border-top:3px solid var(--y)}
+.sheet h3{font-family:Bungee;font-weight:400;margin:0 0 10px;font-size:20px}
+.kept{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.kept:first-of-type{border-top:0}
+.kept .pn{flex:none;width:44px;font-size:14px;height:40px;border-radius:12px;background:var(--panel2);font-family:Bungee;display:flex;align-items:center;justify-content:center}
+.kept div{flex:1}.kept b{font-size:15px}.kept span{display:block;font-size:12.5px;color:var(--mut);line-height:1.35}
+.kept button{border:0;border-radius:12px;padding:10px 14px;background:var(--y);color:#111;font-weight:900}
+.rules p,.rules li{font-size:14px;line-height:1.5;color:#ddd}
+.rules ul{padding-left:18px}
+.hidden{display:none!important}
+.end{text-align:center;justify-content:center}
+.end h1{font-size:50px;margin:0 0 10px}
+.recap{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:18px 0;text-align:left}.recap .lbl{font-family:Bungee;font-size:12px;color:var(--p);letter-spacing:.08em;margin-bottom:6px}.recap div:not(.lbl){display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line);font-size:15px}.recap div:last-child{border:0}.recap b{font-family:Bungee;color:var(--y)}
+.flash div+div{margin-top:6px;padding-top:6px;border-top:1px solid #1f6b40}
+.who h2 small{font-size:.5em;opacity:.7;margin:0 .2em}
+.buzzflash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;font-family:Bungee,sans-serif;font-size:64px;color:#111;background:#ffd400;animation:bz .25s steps(2) 4;pointer-events:none;text-align:center}
+@keyframes bz{0%{background:#ffd400}50%{background:#ff2e88;color:#fff}}
+.sdlast{text-align:center;font-size:13px;color:#8fe3b0;margin:-4px 0 2px}
+.duelc .card .in{min-height:0}.duelc .card .art{height:44px}.duelc .card .t{margin-top:10px}.duelc .card .x{padding:4px 16px 10px}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<div id="sheet"></div>
+
+<script>
+/* ================= CARD DATA (same text as the printed deck; filled in by build.py) ================= */
+const S=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICON={TRADE:S('<path d="M4 8h14l-4-4M20 16H6l4 4"/>'),
+VOTE:S('<path d="M7 12V6a1.5 1.5 0 0 1 3 0v5M10 11V4.5a1.5 1.5 0 0 1 3 0V11M13 11V5.5a1.5 1.5 0 0 1 3 0V12M16 12V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.5 15a1.5 1.5 0 0 1 2.5-1.7L7 15"/>'),
+EVERYONE:S('<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M15 14.5c3 0 6 2 6 5.5"/>'),
+KEEP:S('<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/>'),
+DUEL:S('<path d="M5 19L19 5M19 5h-5M19 5v5M19 19L5 5M5 5h5M5 5v5"/>'),
+PHEW:S('<path d="M12 22c5-2 8-6 8-11V5l-8-3-8 3v6c0 5 3 9 8 11z"/>'),
+WILD:S('<path d="M12 2l3 6.5 7 .8-5.2 4.8 1.5 7L12 17.6 5.7 21.1l1.5-7L2 9.3l7-.8z"/>'),
+UNWRAP:S('<path d="M4 4l16 16M14 4l6 0 0 6M10 20H4v-6"/>'),
+LAST:S('<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v3M8 21h8M9 21v-2h6v2"/>')};
+const GIFT=S('<rect x="3" y="9" width="18" height="12" rx="1.5"/><path d="M2 9h20M12 9v12M12 9c-2-4-6-5-6-2s4 2 6 2zm0 0c2-4 6-5 6-2s-4 2-6 2z"/>');
+ICON.UNWRAP=GIFT;
+const HAND=ICON.VOTE;
+const FOOT={UNWRAP:'Do it while you unwrap. Pulled it off? Draw another Twist.',
+EVERYONE:'Whole room! Only gift-holders’ unlocked gifts move.',
+VOTE:'Everyone votes (tie: the host decides). Skip locked gifts.',
+DUEL:'Pick a gift-holder (both gifts unlocked). Win = you may swap. Can’t tell? They win.',
+TRADE:'Only gift-holders. Skip locked gifts.',KEEP:'Saved in the app. Use it once. Put away at Last Call.',PHEW:'',WILD:'',LAST:''};
+const DECK=[["UNWRAP", "Not a Peep", "Unwrap without making a sound. The room may try to make you laugh. Not a peep? You pulled it off.", "Shhhh.", 0, "", 0], ["UNWRAP", "Statue", "Unwrap. The room may yell “FREEZE!” up to 3 times; freeze for 3 seconds each time. Never moved? You pulled it off.", "Musical statues, gift edition.", 0, "", 0], ["UNWRAP", "Blindfolded", "Eyes closed until the gift is out of the paper. The room shouts directions. Out in 30 seconds? You pulled it off.", "Left. No, YOUR left.", 0, "", 30], ["UNWRAP", "Bow on Head", "Balance a bow (or a napkin) on your head while you unwrap. It never fell? You pulled it off.", "Fashion AND function.", 0, "", 0], ["UNWRAP", "Slow-Mo", "Unwrap in dramatic slow motion, with sound effects. The room votes: slow enough? You pulled it off.", "Every rip… is… an… event.", 1, "", 0], ["EVERYONE", "Pass It On", "Every gift-holder hands their unlocked gift to the gift-holder with the next number up. (The highest number hands to the lowest.)", "Say goodbye.", 0, "", 0], ["EVERYONE", "Musical Gifts", "While the music plays, gift-holders keep handing their unlocked gift to the gift-holder with the next number up. When it stops, keep what you’re holding.", "Don’t drop anything fragile.", 0, "music", 0], ["EVERYONE", "Hot Potato", "Gift-holders toss the phone around. Whoever holds it when it buzzes trades gifts with the person who handed it to them.", "Pass it! PASS IT!", 0, "potato", 0], ["EVERYONE", "Phone’s Choice", "The phone picks two gift-holders. They trade gifts.", "The algorithm has spoken.", 0, "pick2", 0], ["EVERYONE", "Birthday Bonus", "The gift-holder with the next birthday may trade gifts with anyone (unlocked gifts only).", "Happy early birthday.", 0, "", 0], ["DUEL", "Rock, Paper, Scissors", "Challenge any gift-holder to Rock, Paper, Scissors, best of three. Win: you may swap gifts.", "No “dynamite.”", 0, "", 0], ["DUEL", "Snowball Toss", "Challenge any gift-holder. Crumple some wrapping paper. One throw each at a cup. Closest wins. Win: you may swap gifts.", "Form matters.", 0, "", 0], ["DUEL", "Dance-Off", "Challenge any gift-holder. 10 seconds of dancing each. The room cheers for the winner. Win: you may swap gifts.", "No mercy.", 1, "", 0], ["DUEL", "Mirror Mirror", "Challenge any gift-holder. For 15 seconds they copy your every move. They laugh or miss a move? You win: you may swap gifts.", "Do the robot.", 1, "", 0], ["VOTE", "Courtroom", "Accuse any gift-holder of having the best gift. They get 10 seconds to argue it’s terrible. The room votes. Guilty? You trade with them.", "Order in the court!", 1, "", 0], ["VOTE", "Santa’s Pick", "The room votes on which gift-holder has the worst gift. They may trade it for any unlocked gift.", "A Christmas miracle.", 0, "", 0], ["TRADE", "Trade Up", "You may trade your gift for any unlocked gift.", "Upgrade season.", 0, "", 0], ["TRADE", "Polite Thief", "Ask anyone holding a gift, very nicely, to trade with you. If they say no, trade anyway.", "Manners are optional.", 0, "", 0], ["TRADE", "Matchmaker", "Pick two other people holding gifts. They trade.", "Act innocent.", 0, "", 0], ["TRADE", "Blind Swap", "Close your eyes. The group points you to someone holding a gift. Trade.", "Trust the process.", 0, "", 0], ["PHEW", "Lock It In", "Your gift is locked right now. Put a bow on it.", "It’s yours forever.", 0, "", 0], ["PHEW", "Game Show Host", "Present your gift like it’s a brand-new car. If the room cheers, it can’t be stolen or traded during the next turn.", "Sell it.", 1, "", 0], ["WILD", "Jackpot", "Draw two more Twists and do both.", "Feeling lucky?", 0, "", 0]];
+/*DATA*/const DATA={"duels": [{"title": "Rock, Paper, Scissors", "text": "One round. Ties go again.", "quip": "Shoot!"}, {"title": "Staring Contest", "text": "Eyes locked. First to blink, look away or laugh loses.", "quip": "Someone will make a face."}, {"title": "Thumb War", "text": "Lock fingers. Pin the other thumb down for a count of 3.", "quip": "One, two, three, four…"}, {"title": "Quick Draw", "text": "Gift on the floor between you, hands on knees. When the phone buzzes, first to touch it wins. Too early? You lose.", "quip": "Steady…", "tool": "quickdraw", "print_text": "Gift between you, hands on knees. The judge shouts “GO!” whenever they like. First to touch the gift wins. Too early? You lose."}, {"title": "Movie Marathon", "text": "Take turns naming holiday movies, thief first. Repeat one or freeze for 3 seconds and you lose.", "quip": "Elf counts once."}, {"title": "Flamingo", "text": "Both stand on one foot, hands off the furniture. First to put the other foot down loses.", "quip": "Wobble wobble."}, {"title": "No Laughing", "text": "Thief gets 15 seconds to make the holder laugh (no touching). Holder laughs? Thief wins. If not, holder wins.", "quip": "Crack up.", "secs": 15, "perform": true}, {"title": "Hot Hands", "text": "Thief’s palms rest on the holder’s palms. Holder gets 3 tries to slap the back of the thief’s hands. 2 slaps? Holder wins.", "quip": "Ow."}, {"title": "Carol Clash", "text": "Each of you sings one line of a holiday song. The room cheers for the winner.", "quip": "Volume counts.", "perform": true}], "showdown": {"type": "LAST CALL", "title": "Last Call", "text": "After the last turn, from Player 1 up: DEAL (offer a swap; yes or no), DUEL (win = swap) or pass. Win or deal: your new gift gets a bow. Lose a duel: theirs does.", "quip": "Peace on earth. Finally."}, "nope": {"title": "Nope", "text": "Use it once to skip anything that makes YOU sing, dance, act or be funny (🎤). Your own Twist? Skip it. A duel? Draw a different duel.", "quip": "Not today, Santa."}};/*END*/
+const DU=DATA.duels||[];
+const LASTCARD=['LAST',DATA.showdown.title,DATA.showdown.text,DATA.showdown.quip];
+const TY=i=>DECK[i][0], NAME=i=>DECK[i][1], PERF=i=>!!DECK[i][4], TOOL=i=>DECK[i][5]||'', SECS=i=>DECK[i][6]||0;
+const KEEPLIKE=i=>TY(i)==='KEEP'||NAME(i)==='Dibs';
+const MODES={classic:'Classic',ceasefire:'Ceasefire',allout:'All-Out War'};
+
+/* ================= STATE ================= */
+const KEY='giftwars-v7';
+const bump=k=>{st.stats=st.stats||{};st.stats[k]=(st.stats[k]||0)+1};
+let st=null, hist=[];
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}};
+const snap=()=>{hist.push(JSON.stringify(st)); if(hist.length>60) hist.shift()};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+function newGame(players,mode){
+  const calm=mode==='ceasefire';
+  const pool=DECK.map((c,i)=>i).filter(i=>!(calm&&PERF(i)));
+  const duPool=DU.map((c,i)=>i).filter(i=>!(calm&&DU[i].perform));
+  st={players,mode,turn:1,actor:1,thief:null,robbed:false,step:'choose',deck:shuffle(pool),used:[],kept:[],
+      duPool,duDeck:shuffle(duPool.slice()),curDu:null,current:null,redrawn:false,pending:0,phase:'',noTwist:false,
+      opens:0,flash:'',after:'turnEnd',victim:null,blocked:[],nope:[],lcP:0,lcTarget:null,evResult:'',duRes:'',timerUsed:false,
+      afterDibs:'end',nextCard:null,stats:{}};
+  hist=[];save();render();
+}
+/* who is holding a gift during a turn: players 1..turn, minus whoever is empty-handed right now (the actor) */
+const holders=()=>{const h=[];for(let p=1;p<=st.turn;p++) if(p!==st.actor) h.push(p);return h;};
+const giftHolders=()=>Array.from({length:st.turn},(_,k)=>k+1); // once the actor has a gift again
+const keptBy=(p,name)=>st.kept.findIndex(k=>k.p===p&&NAME(k.i)===name);
+const canNope=p=>!st.nope.includes(p);
+function stealTargets(){ return holders().filter(p=>p!==st.thief && !st.blocked.includes(p)); }
+function drawTwist(allowUnwrap){
+  for(let n=0;n<200;n++){
+    if(!st.deck.length){ if(!st.used.length) return null; st.deck=shuffle(st.used.slice()); st.used=[]; }
+    const i=st.deck.pop();
+    if(!allowUnwrap && TY(i)==='UNWRAP'){ st.used.push(i); continue; } // gift is already open: skip UNWRAP cards
+    return i;
+  }
+  return null;
+}
+function drawDu(){ if(!st.duDeck.length) st.duDeck=shuffle(st.duPool.slice()); return st.duDeck.pop(); }
+function finishCard(){ // shown card goes to the used pile (KEEP cards go to the actor's hand)
+  if(st.current===null) return;
+  if(KEEPLIKE(st.current)) st.kept.push({i:st.current,p:st.actor}); else st.used.push(st.current);
+  st.current=null; st.redrawn=false;
+}
+
+/* ================= OPEN ================= */
+function chooseOpen(keepFlash){
+  snap(); if(!keepFlash) st.flash=''; st.blocked=[]; stopTimer();
+  bump('opens'); st.opens++;
+  if(st.opens===1){ st.flash=(st.flash?st.flash+'|':'')+`🎁 Player ${st.actor} opens the first gift. No Twist for the very first one.`; return endTurn(); }
+  if(st.noTwist){ st.noTwist=false; st.flash=(st.flash?st.flash+'|':'')+`Player ${st.actor}: unwrap a gift. No Twist this time.`; return dibsThen('end'); }
+  const i=drawTwist(true);
+  if(i!==null && TY(i)==='UNWRAP') return showCard(i,'unwrap');
+  st.nextCard=i; dibsThen('card');
+}
+function dibsThen(next){
+  st.afterDibs=next;
+  const d=st.kept.find(k=>NAME(k.i)==='Dibs'&&k.p!==st.actor);
+  if(d){ st.step='dibs'; st.dibsBy=d.p; save(); return render(); }
+  contDibs();
+}
+function contDibs(){
+  const n=st.afterDibs;
+  if(n==='card') return showCard(st.nextCard,'open');
+  if(n==='more') return drawFor(st.actor);
+  endTurn();
+}
+function dibsDone(traded){
+  snap(); const k=st.kept.findIndex(k=>NAME(k.i)==='Dibs'&&k.p===st.dibsBy);
+  if(k>-1) st.used.push(st.kept.splice(k,1)[0].i);
+  st.flash=traded?`☝ Dibs! Player ${st.dibsBy} took the new gift and gave theirs to Player ${st.actor}.`:'';
+  contDibs();
+}
+function fewHolders(){ return st.turn-(st.after==='victim'?1:0)<3; }
+function skipEveryone(i,allowUnwrap){ // EVERYONE card with fewer than 3 gift-holders: draw again
+  for(let n=0;n<40&&i!==null&&TY(i)==='EVERYONE'&&fewHolders();n++){ st.used.push(i); i=drawTwist(allowUnwrap); }
+  return i;
+}
+function showCard(i,phase){
+  i=skipEveryone(i,phase==='unwrap');
+  bump('twists'); st.current=i; st.redrawn=false; st.phase=phase; st.evResult=''; st.timerUsed=false; st.step='card';
+  if(i!==null && NAME(i)==='Jackpot') st.pending+=2;
+  save(); render();
+}
+function drawFor(p){ st.actor=p; showCard(drawTwist(false),'twist'); }
+function unwrapResult(made){
+  snap(); stopTimer(); bump(made?'pulled':'missed'); finishCard();
+  st.flash=made?`🎉 Pulled it off! Player ${st.actor} draws another Twist.`:`Nice try! The gift is open. Player ${st.actor}'s turn is over.`;
+  dibsThen(made?'more':'end');
+}
+
+/* ================= STEAL ================= */
+function chooseSteal(){ snap(); st.step='pick'; st.flash=''; save(); render(); }
+function pickVictim(v){
+  snap();
+  if(keptBy(v,'Shield')>-1){ st.step='shield'; st.victim=v; save(); return render(); }
+  startDuel(v);
+}
+function startDuel(v){ st.victim=v; st.curDu=drawDu(); st.duRes=''; st.timerUsed=false; st.step='duel'; st.flash=''; save(); render(); }
+function duelResult(thiefWon){
+  snap(); stopTimer(); pendingEnd=null; const v=st.victim, t=st.actor;
+  if(thiefWon) return doSteal(v);
+  bump('defended');
+  st.flash=`🛡 Player ${v} won the duel and keeps their gift. Player ${t} opens a gift instead.`;
+  chooseOpen(true);
+}
+function quickDraw(){
+  ac(); stopTimer(); st.duRes='wait'; render();
+  pendingEnd=()=>{ st.duRes='go'; save(); render(); };
+  timerId=setTimeout(()=>{ timerId=null; buzz('GO!'); const f=pendingEnd; pendingEnd=null; f&&f(); }, 2000+Math.random()*5000);
+}
+function shieldAnswer(use){
+  snap(); const v=st.victim;
+  if(use){ st.used.push(st.kept.splice(keptBy(v,'Shield'),1)[0].i); st.blocked.push(v);
+    st.flash=`🛡 Player ${v} blocked it with a Shield. Player ${st.actor}, choose again.`; st.step='choose'; save(); return render(); }
+  startDuel(v);
+}
+function doSteal(v){
+  const thief=st.actor; st.victim=v;
+  if(keptBy(v,'Return to Sender')>-1){ st.step='rts'; st.thiefTmp=thief; save(); return render(); }
+  afterSteal(thief,v);
+}
+function rtsAnswer(use){
+  snap(); const thief=st.thiefTmp, v=st.victim;
+  if(use){ st.used.push(st.kept.splice(keptBy(v,'Return to Sender'),1)[0].i);
+    st.flash=`↩ Return to Sender! Player ${v} took it right back. Player ${thief} opens a gift instead, with no Twist.`;
+    st.actor=thief; st.noTwist=true; return chooseOpen(true); }
+  afterSteal(thief,v);
+}
+function afterSteal(thief,v){
+  st.blocked=[]; bump('steals');
+  st.flash=`🖐 Player ${thief} won the duel and took Player ${v}'s gift! (Its ${st.players<8?'2nd':'3rd'} steal? Put a bow on it: locked.)`;
+  if(st.mode==='allout'){ st.after='victim'; st.nextActor=v; st.nextThief=thief; drawFor(thief); return; }
+  st.actor=v; st.thief=thief; st.robbed=true; st.step='choose'; save(); render();
+}
+
+/* ================= CARDS ================= */
+function cantHappen(){
+  snap();
+  const i=st.current; st.deck.splice(Math.floor(Math.random()*(st.deck.length+1)),0,i);
+  if(st.redrawn){ st.current=null; st.flash="Second card can't happen either, so nothing happens."; return cardDone(true); }
+  const j=skipEveryone(drawTwist(st.phase==='unwrap'),st.phase==='unwrap'); st.current=j; st.redrawn=true; st.evResult='';
+  if(j!==null && NAME(j)==='Jackpot') st.pending+=2;
+  save(); render();
+}
+function useSnooze(){
+  snap(); const k=keptBy(st.actor,'Snooze'); st.used.push(st.kept.splice(k,1)[0].i);
+  st.used.push(st.current); st.current=null; st.flash='😴 Snooze used. Here’s a new card:';
+  showCard(drawTwist(st.phase==='unwrap'),st.phase);
+}
+function useNope(p){
+  snap(); st.nope.push(p); bump('nopes'); stopTimer(); stopMusic(); pendingEnd=null;
+  if(st.step==='card'){ // Nope your own Twist: skip it (no redraw)
+    st.used.push(st.current); st.current=null;
+    st.flash=`🙅 Player ${p} said NOPE: card skipped.${st.phase==='unwrap'?' Just unwrap the gift.':''}`; return cardDone(true); }
+}
+function nopeDuel(p){ // Nope in a duel: draw a different duel that nobody has to perform
+  snap(); st.nope.push(p); bump('nopes'); stopTimer(); pendingEnd=null;
+  let d=drawDu(); for(let n=0;n<20&&DU[d].perform;n++){ st.duDeck.unshift(d); d=drawDu(); }
+  st.curDu=d; st.duRes=''; st.timerUsed=false; st.flash=`🙅 Player ${p} said NOPE. Different duel:`; save(); render();
+}
+function nextJackpot(){ snap(); st.pending--; finishCard(); st.flash=''; st.jackFrom=true; drawFor(st.actor); }
+function cardDone(already){
+  if(!already){ snap(); st.flash=''; }
+  stopTimer(); stopMusic(); pendingEnd=null;
+  if(st.current!==null && TY(st.current)==='EVERYONE'){
+    bump('everyone');
+    const before=st.kept.length; st.kept=st.kept.filter(k=>{if(NAME(k.i)==='Mistletoe'){st.used.push(k.i);return false}return true});
+    if(st.kept.length<before) st.flash=(st.flash?st.flash+'|':'')+'Mistletoe removed (an EVERYONE card was played).';
+  }
+  finishCard();
+  if(st.pending>0){ st.pending--; st.jackFrom=true; return drawFor(st.actor); }
+  st.jackFrom=false;
+  if(st.after==='victim'){ st.after='turnEnd'; st.actor=st.nextActor; st.thief=st.nextThief; st.robbed=true; st.step='choose'; save(); return render(); }
+  endTurn();
+}
+function endTurn(){
+  st.thief=null; st.robbed=false; st.blocked=[]; st.current=null; st.noTwist=false;
+  if(st.turn>=st.players) return startLastCall();
+  const prev=st.turn; st.turn++; st.actor=st.turn; st.step='choose';
+  st.flash=(st.flash?st.flash+'|':'')+`✓ Turn ${prev} done. Player ${st.turn}, you're up!`; save(); render();
+}
+function eventTool(tool){
+  snap();
+  const players=shuffle(giftHolders());
+  if(tool==='pick2'){ st.evResult=`🎲 Player ${players[0]} and Player ${players[1]} trade gifts! (Skip if either gift is locked.)`; save(); return render(); }
+  if(tool==='pick1'){ st.evResult=`🎲 Player ${players[0]}, you may trade with anyone (unlocked gifts only)!`; save(); return render(); }
+  if(tool==='music'){ const secs=6+Math.random()*10; st.evResult='🎵 Music playing… keep handing gifts to the next number up!'; save(); playMusic(secs,()=>{st.evResult='⏹ MUSIC STOPPED! Keep what you’re holding.';save();render();}); render(); return; }
+  if(tool==='potato'){ const secs=8+Math.random()*12; st.evResult='🥔 Pass the phone! It will buzz…'; save(); tick(secs,()=>{st.evResult='💥 BUZZ! Whoever holds the phone trades gifts with the person who handed it to them.';save();render();}); render(); return; }
+}
+
+/* ================= LAST CALL ================= */
+function startLastCall(){
+  const n=st.kept.length; st.kept.forEach(k=>st.used.push(k.i)); st.kept=[];
+  st.flash='';
+  st.step='lc'; st.lcP=1; save(); render();
+}
+function lcPick(v){ snap(); st.lcTarget=v; st.flash=''; st.step='lcchoice'; save(); render(); }
+function lcDeal(yes){ snap(); const a=st.lcP, b=st.lcTarget;
+  if(yes){ bump('lcSwaps'); bump('deals'); st.flash=`🤝 Deal! Players ${a} and ${b} swap gifts. Player ${a}'s new gift gets a bow.`; return lcNext(); }
+  st.flash=`Player ${b} said no. Player ${a}, duel them or pick someone else.`; st.step='lcchoice'; st.dealRefused=true; save(); render(); }
+function lcDuel(){ snap(); st.curDu=drawDu(); st.duRes=''; st.timerUsed=false; st.flash=''; st.step='lcduel'; save(); render(); }
+function lcResult(won){
+  snap(); stopTimer(); pendingEnd=null; const a=st.lcP, b=st.lcTarget;
+  if(won){ bump('lcSwaps'); st.flash=`🔁 Player ${a} won! Swap gifts. The gift Player ${a} won gets a bow: locked.`; }
+  else st.flash=`🛡 Player ${b} won and keeps their gift. It gets a bow: safe now.`;
+  bump('lcDuels'); lcNext();
+}
+function lcPass(){ snap(); st.flash=`Player ${st.lcP} passed.`; lcNext(); }
+function lcNext(){ st.dealRefused=false; if(st.lcP<st.players){ st.lcP++; st.step='lc'; } else st.step='end'; save(); render(); }
+
+/* ---------- sound + timers ---------- */
+let AC=null, MASTER=null, timerId=null, timerLeft=0, musicStop=null, silentEl=null;
+/* Phones: the first tap unlocks sound. A tiny silent audio clip switches iPhones to "media playback",
+   so the game is audible even when the ringer/silent switch is on. */
+const SILENT='data:audio/wav;base64,UklGRvQHAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YdAHAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+function unlockAudio(){
+  try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+  try{ if(!silentEl){ silentEl=new Audio(SILENT); silentEl.loop=true; silentEl.setAttribute('playsinline',''); } if(silentEl.paused){ const p=silentEl.play(); if(p&&p.catch) p.catch(()=>{}); } }catch(e){}
+  ac();
+}
+['pointerdown','touchend','click'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
+document.addEventListener('visibilitychange',()=>{ try{ if(document.hidden&&silentEl) silentEl.pause(); }catch(e){} });
+const ac=()=>{ try{ if(!AC){ AC=new (window.AudioContext||window.webkitAudioContext)(); const comp=AC.createDynamicsCompressor(); MASTER=AC.createGain(); MASTER.gain.value=1; MASTER.connect(comp); comp.connect(AC.destination); } if(AC.state!=='running') AC.resume(); }catch(e){} return AC; };
+function tone(f,dur,when=0,type='square',vol=.2){ const a=ac(); if(!a||!MASTER) return; const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.value=f; o.connect(g); g.connect(MASTER); const t=a.currentTime+when; g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.start(t); o.stop(t+dur+.02); }
+function flashBuzz(label){ const d=document.createElement('div'); d.className='buzzflash'; d.textContent=label||'BZZZT!'; document.body.appendChild(d); setTimeout(()=>d.remove(),1000); }
+/* Loud, high alarm (phone speakers can't play deep tones), plus a vibration where supported and a full-screen flash */
+const buzz=(label)=>{ [0,.17,.34,.51].forEach((w,i)=>{ tone(i%2?660:880,.15,w,'square',.35); tone(i%2?990:1320,.15,w,'sawtooth',.12); }); try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(e){} flashBuzz(label); };
+function soundCheck(){ unlockAudio(); tone(660,.15,0,'square',.3); tone(880,.15,.18,'square',.3); setTimeout(()=>buzz('🔊 SOUND OK?'),500); }
+function startTimer(secs){
+  snap(); st.timerUsed=true; save(); stopTimer(); timerLeft=secs; ac(); render(); paintTimer();
+  timerId=setInterval(()=>{ timerLeft--; if(timerLeft<=3&&timerLeft>0) tone(880,.12); paintTimer(); if(timerLeft<=0){ stopTimer(); buzz('TIME!'); paintTimer(true);} },1000);
+}
+function stopTimer(){ if(timerId){clearInterval(timerId);clearTimeout(timerId);timerId=null} }
+function paintTimer(done){ const el=document.getElementById('timer'); if(!el) return; el.textContent=done?"TIME'S UP!":timerLeft+'s'; el.classList.toggle('done',!!done); el.classList.toggle('hot',timerLeft<=5&&!done); }
+let pendingEnd=null; // what happens when the music / hot potato ends (also used by the "Stop now" button)
+function stopNow(){ stopTimer(); stopMusic(); const f=pendingEnd; pendingEnd=null; if(f){ buzz('STOP!'); f(); } }
+function tick(secs,cb){ stopTimer(); ac(); let left=secs; pendingEnd=cb; timerId=setInterval(()=>{ left-=.5; tone(left%1===0?880:660,.06,0,'square',.22); if(left<=0){ stopTimer(); buzz(); const f=pendingEnd; pendingEnd=null; f&&f(); } },500); }
+// Jingle Bells (public domain) as a simple chiptune
+const JB=[[659,1],[659,1],[659,2],[659,1],[659,1],[659,2],[659,1],[784,1],[523,1.5],[587,.5],[659,4],[698,1],[698,1],[698,1.5],[698,.5],[698,1],[659,1],[659,1],[659,.5],[659,.5],[659,1],[587,1],[587,1],[659,1],[587,2],[784,2]];
+function playMusic(secs,onStop){
+  stopMusic(); pendingEnd=onStop; const a=ac(); if(!a){ return; } // no sound available: host uses "Stop the music now"
+  const beat=.22; let stopped=false, t0=a.currentTime, i=0, next=0;
+  const loop=setInterval(()=>{ const now=a.currentTime-t0; while(next<now+.5){ const [f,d]=JB[i%JB.length]; tone(f,beat*d*.9,next-now,'square',.18); tone(f*2,beat*d*.9,next-now,'triangle',.08); next+=beat*d; i++; } },120);
+  const end=setTimeout(()=>{ stopMusic(); buzz('STOP!'); const f=pendingEnd; pendingEnd=null; f&&f(); }, secs*1000);
+  musicStop=()=>{ if(stopped) return; stopped=true; clearInterval(loop); clearTimeout(end); };
+}
+function stopMusic(){ if(musicStop){ musicStop(); musicStop=null; } }
+function useKept(idx){ // from the hand sheet
+  snap(); const k=st.kept.splice(idx,1)[0]; st.used.push(k.i);
+  st.flash=`Player ${k.p} used ${NAME(k.i)}.`; closeSheet(); save(); render();
+}
+
+/* ================= RENDER ================= */
+const $=id=>document.getElementById(id);
+function cardHTML(c,lab,sub,foot,perform){
+  const t=c[0], label=lab||(t==='LAST'?'LAST CALL':t), dk=(t==='KEEP'||t==='LAST');
+  return `<div class="cardwrap"><div class="card${dk?' dk':''}${t==='LAST'?' lastc':''}" style="--c:var(--${t})"><div class="in">
+    <div class="band"><span>${label}</span><i>${perform?'🎤 ':''}${sub||(t==='LAST'?'FINALE':'TWIST')}</i></div>
+    <div class="t">${c[1]}</div><div class="art">${ICON[t]||GIFT}</div>
+    <div class="x"><span>${c[2]}<em>${c[3]}</em></span></div>
+    ${(foot??FOOT[t])?`<div class="how">${foot??FOOT[t]}</div>`:''}<div class="st"></div></div></div></div>`;
+}
+const isLC=()=>['lc','lcchoice','lcduel'].includes(st.step);
+function header(){
+  const n=st.players, bars=Array.from({length:n},(_,k)=>`<i class="${isLC()?'done':k+1<st.turn?'done':k+1===st.turn?'now':''}"></i>`).join('');
+  return `<div class="tape"></div>
+  <div class="hdr"><div class="logo">GIFT <em>WARS</em></div>
+    <div class="right">${st.kept.length?`<button class="pill gold" onclick="openHand()">🃏 Cards · ${st.kept.length}</button>`:''}
+    <button class="pill" onclick="openMenu()">☰</button></div></div>
+  <div class="progress">${bars}</div>
+  <div class="meta"><span>${isLC()?`Last Call · Player ${st.lcP} of ${n}`:`Turn ${st.turn} of ${n}`} · ${MODES[st.mode]}</span><span>${st.nope.length?`🙅 ${st.nope.length} Nope used`:''}</span></div>`;
+}
+const nopeBtn=(p,what)=>canNope(p)?`<button class="btn ghost" onclick="useNope(${p})">🙅 Player ${p} says NOPE (${what})</button>`:'';
+function render(){
+  if(!st){ return renderSetup(); }
+  if(st.step==='end'){ return renderEnd(); }
+  let body='';
+  const flash=st.flash?`<div class="flash">${st.flash.split('|').map(x=>`<div>${x}</div>`).join('')}</div>`:'';
+  const P=st.actor;
+
+  if(st.step==='choose'){
+    const targets=stealTargets();
+    let why='';
+    if(st.opens===0) why='Nothing to steal yet. Player 1 starts the game by opening a gift.';
+    else if(st.robbed) why='Your gift was stolen, so you open a wrapped gift (and you get a Twist).';
+    else if(!targets.length) why='No gifts available to steal right now.';
+    const canSteal=!why && targets.length>0;
+    body=`${flash}<div class="who"><span class="tag">${st.robbed?'YOUR GIFT WAS STOLEN':'YOUR MOVE'}</span><h2>PLAYER ${P}</h2>
+      <p>${canSteal?'Open a wrapped gift or steal an opened one?':'Open a wrapped gift.'}</p></div>
+      <div class="choices">
+        <button class="choice open" onclick="chooseOpen()">${GIFT}<div><b>OPEN A GIFT</b><span>${st.opens===0?'Unwrap the first gift':'Draw a Twist card, unwrap, do the card'}</span></div></button>
+        ${canSteal?`<button class="choice steal" onclick="chooseSteal()">${HAND}<div><b>STEAL A GIFT</b><span>Beat its holder in a quick duel. Lose = you open a gift instead</span></div></button>`:''}
+      </div>
+      ${st.opens===0?howTo([`Nothing to steal yet, so Player 1 opens.`,`Pick any wrapped gift and tap <b>Open a gift</b>.`])
+        :howTo(canSteal?[`<b>Open:</b> draw a Twist card. If it says UNWRAP, do it while you unwrap. Otherwise unwrap first, then do it.`,
+             `<b>Steal:</b> pick an opened gift (no bow) and play a quick duel against its holder. Win = it's yours and they open a gift. Lose = you open a gift instead.`]
+           :[why,`<b>Open:</b> draw a Twist card. If it says UNWRAP, do it while you unwrap. Otherwise unwrap first, then do it.`])}`;
+  }
+  else if(st.step==='pick'){
+    const t=stealTargets();
+    body=`<div class="who"><span class="tag">STEAL</span><h2>FROM WHO?</h2><p>Player ${P}, tap the player whose gift you want.</p></div>
+      <div class="grid">${t.map(p=>`<button onclick="pickVictim(${p})">P${p}</button>`).join('')}</div>
+      ${howTo([`Skip anyone whose gift has a bow (locked).`,`Tap their number. Next you two play a quick <b>Steal Duel</b>.`,`Win: take the gift (on its <b>${st.players<8?'2nd':'3rd'} steal, put a bow on it</b>). They open a gift.`,`Lose: they keep it and you open a gift instead (you still get a Twist).`])}
+      <button class="btn ghost" onclick="undo()">← Back</button>`;
+  }
+  else if(st.step==='shield'){
+    body=`<div class="prompt"><h3>🛡 SHIELD!</h3><p><b>Player ${st.actor}</b> wants to duel <b>Player ${st.victim}</b> for their gift, but Player ${st.victim} has a Shield. Block it?</p></div>
+      <div class="row"><button class="btn y" onclick="shieldAnswer(true)">Block it</button><button class="btn g" onclick="shieldAnswer(false)">Let it happen</button></div>`;
+  }
+  else if(st.step==='rts'){
+    body=`<div class="prompt"><h3>↩ RETURN TO SENDER</h3><p><b>Player ${st.victim}</b> can take their gift right back (not counted as a steal). Player ${st.thiefTmp} would then open a gift with no Twist. Use it?</p></div>
+      <div class="row"><button class="btn y" onclick="rtsAnswer(true)">Take it back</button><button class="btn g" onclick="rtsAnswer(false)">Not now</button></div>`;
+  }
+  else if(st.step==='dibs'){
+    body=`<div class="prompt"><h3>☝ DIBS!</h3><p><b>Player ${P}</b>, unwrap your gift now. <b>Player ${st.dibsBy}</b> called dibs: they may trade their gift for it, before any Twist.</p></div>
+      <div class="row"><button class="btn y" onclick="dibsDone(true)">They traded</button><button class="btn g" onclick="dibsDone(false)">No thanks</button></div>`;
+  }
+  else if(st.step==='card'){
+    const i=st.current;
+    if(i===null){ body=`${flash}<div class="flash">No cards left.</div><button class="btn y" onclick="cardDone()">Continue</button>`; }
+    else{
+      const c=DECK[i], keep=KEEPLIKE(i), uw=st.phase==='unwrap', tool=TOOL(i), secs=SECS(i);
+      const snooze=!keep&&keptBy(P,'Snooze')>-1, isJack=NAME(i)==='Jackpot', running=!!pendingEnd;
+      let primary;
+      const toolBtn={music:'▶ Start the music',potato:'🥔 Start Hot Potato',pick2:'🎲 Pick two gift-holders',pick1:'🎲 Pick a gift-holder'}[tool];
+      if(uw) primary=`${secs&&!st.timerUsed?`<button class="btn p" onclick="startTimer(${secs})">⏱ Start the ${secs}-second timer</button>`:''}${secs&&st.timerUsed?`<div class="timer" id="timer">${secs}s</div>`:''}
+        <div class="row"><button class="btn y" onclick="unwrapResult(true)">Pulled it off ✓</button><button class="btn g" onclick="unwrapResult(false)">Didn't ✗</button></div>`;
+      else if(isJack) primary=`<button class="btn p" onclick="nextJackpot()">🎰 Draw card 1 of 2</button>`;
+      else if(tool&&!st.evResult) primary=`<button class="btn p" onclick="eventTool('${tool}')">${toolBtn}</button>`;
+      else if(running) primary=`<button class="btn g" onclick="stopNow()">${tool==='music'?'⏹ Stop the music now':'⏭ Skip the wait'}</button>`;
+      else if(st.pending>0) primary=`<button class="btn p" onclick="nextJackpot()">Done · draw ${st.pending===1?'the last':'the next'} Jackpot card</button>`;
+      else if(keep) primary=`<button class="btn y" onclick="cardDone()">Got it · Player ${P} keeps this</button>`;
+      else primary=`<button class="btn y" onclick="cardDone()">Done ✓</button>`;
+      const extras=[];
+      if(PERF(i)) extras.push(nopeBtn(P,'skip this card'));
+      if(snooze) extras.push(`<button class="btn g" onclick="useSnooze()">😴 Use Snooze: draw a different card</button>`);
+      if(!uw&&!keep&&!isJack&&TY(i)!=='PHEW'&&!st.evResult) extras.push(`<button class="btn ghost" onclick="cantHappen()">${st.redrawn?"This one can't happen either":"Can't happen? Redraw once"}</button>`);
+      const lead=uw?`<b>Player ${P}</b>: grab a wrapped gift and do this <b>while you unwrap</b>!`
+        :st.jackFrom?`🎰 <b>Player ${P}</b>: Jackpot card. Read it out loud!`
+        :st.phase==='open'?`<b>Player ${P}</b>: unwrap your gift first, then do this card.`
+        :st.after==='victim'?`<b>Player ${P}</b> (thief, All-Out War) draws a Twist. Read it out loud!`
+        :`<b>Player ${P}</b> drew a Twist. Read it out loud!`;
+      body=`${flash}<div class="drew">${lead}</div>
+        ${cardHTML(c,null,null,undefined,PERF(i))}${st.evResult?`<div class="flash">${st.evResult}</div>`:''}${primary}${extras.join('')}
+        ${howTo(uw?[`Read it out loud, then unwrap while doing it.`,`The room decides: <b>Pulled it off</b> = draw another Twist. <b>Didn't</b> = nothing bad happens.`]
+          :keep?[`Read it out loud.`,`Player ${P} keeps this card. Find it under <b>🃏 Cards</b> at the top. KEEP cards are put away at Last Call.`]
+          :isJack?[`Read it out loud. Then draw two more and do both.`]
+          :[`Read it out loud, then do it right now.`,`"You may" = your choice. Only gift-holders, and skip locked gifts.`,...(PERF(i)?[`🎤 card: anyone asked to perform may say <b>NOPE</b> once per game.`]:[]),`Tap <b>Done</b> when it's finished.`])}`;
+    }
+  }
+  else if(st.step==='duel'||st.step==='lcduel'){
+    const lc=st.step==='lcduel', d=DU[st.curDu], T=lc?st.lcP:P, V=lc?st.lcTarget:st.victim;
+    const nb=p=>canNope(p)?`<button class="btn ghost" onclick="nopeDuel(${p})">🙅 Player ${p} says NOPE (different duel)</button>`:'';
+    const nopes=d.perform?nb(T)+nb(V):'';
+    body=`${st.flash?`<div class="sdlast">${st.flash.split('|').join(' ')}</div>`:''}<div class="who"><span class="tag">${lc?'🔁 LAST CALL DUEL':'🖐 STEAL DUEL'}</span><h2>P${T} <small>VS</small> P${V}</h2></div>
+      <div class="duelc">${cardHTML(['DUEL',d.title,d.text,d.quip],lc?'LAST CALL':'STEAL DUEL',lc?'WIN = SWAP':'WINNER GETS IT',`Thief = Player ${T} · Gift-holder = Player ${V}. Can’t tell who won? The gift-holder wins.`,d.perform)}</div>
+      ${duelTools(d)}
+      <div class="row"><button class="btn y" onclick="${lc?'lcResult(true)':'duelResult(true)'}">P${T} won 🖐</button><button class="btn y" onclick="${lc?'lcResult(false)':'duelResult(false)'}">P${V} won 🛡</button></div>
+      ${nopes}
+      ${howTo(lc?[`Play it! Player ${T} is the thief.`,`<b>P${T} wins:</b> swap gifts, and the gift P${T} won gets a bow. <b>P${V} wins:</b> P${V}'s gift gets a bow (safe).`,`Judge: the host (host in the duel? the next player number up who isn't).`]
+        :[`Read it out loud. Player ${T} is the thief, Player ${V} holds the gift.`,`<b>P${T} wins:</b> they take the gift, and Player ${V} opens a gift. <b>P${V} wins:</b> they keep it, and Player ${T} opens a gift instead.`,`Judge: the host (host in the duel? the next player number up who isn't).`])}
+      <button class="btn ghost" onclick="undo()">← Back</button>`;
+  }
+  else if(st.step==='lcchoice'){
+    const a=st.lcP, v=st.lcTarget;
+    body=`${flash}<div class="who"><span class="tag">LAST CALL · PLAYER ${a}</span><h2>P${a} <small>→</small> P${v}</h2><p>Deal or duel for Player ${v}'s gift?</p></div>
+      <div class="choices">
+        ${st.dealRefused?'':`<button class="choice open" onclick="lcDeal(true)">${GIFT}<div><b>DEAL: THEY SAID YES</b><span>Ask nicely. They agreed? Swap gifts.</span></div></button>`}
+        <button class="choice steal" onclick="lcDuel()">${HAND}<div><b>DUEL</b><span>Play a Steal Duel. Win = swap gifts. Lose = their gift gets a bow.</span></div></button>
+      </div>
+      ${st.dealRefused?'':`<button class="btn g" onclick="lcDeal(false)">They said no</button>`}
+      <button class="btn ghost" onclick="undo()">← Pick someone else</button>
+      ${howTo([`<b>Deal:</b> Player ${a} offers a swap out loud. Player ${v} says yes or no.`,`<b>Duel:</b> draw a Steal Duel. Win = swap gifts.`,`Deal or duel win: Player ${a}'s new gift gets a bow. Duel lost: Player ${v}'s gift gets a bow.`])}`;
+  }
+  else if(st.step==='lc'){
+    const a=st.lcP, others=Array.from({length:st.players},(_,k)=>k+1).filter(p=>p!==a);
+    body=`${flash}${st.lcP===1?`<div class="warn">🏆 LAST CALL! From Player 1 up, each player gets one last chance: make a deal or duel for a gift.</div>`:''}
+      <div class="who"><span class="tag">LAST CALL · ${a} OF ${st.players}</span><h2>PLAYER ${a}</h2><p>Want someone's gift? Pick them, then make a deal or duel. Or pass.</p></div>
+      <div class="grid">${others.map(p=>`<button onclick="lcPick(${p})">P${p}</button>`).join('')}</div>
+      <button class="btn g" onclick="lcPass()">Pass: I'm happy</button>
+      ${howTo([`Both gifts must be unlocked (no bow).`,`<b>Deal:</b> offer a swap; they say yes or no. <b>Duel:</b> win = swap and your new gift gets a bow; lose = their gift gets a bow. Passing locks nothing.`,a<st.players?`Then Player ${a+1} gets their Last Call.`:`This is the last one. Then the game is over!`])}`;
+  }
+  $('app').innerHTML=header()+`<div class="stage">${body}</div>`;
+  const ck=st.step+'|'+st.current+'|'+st.curDu+'|'+st.turn+'|'+st.lcP; if(ck===window._ck) document.querySelectorAll('.card').forEach(c=>c.style.animation='none'); window._ck=ck;
+  window.scrollTo(0,0);
+}
+const howTo=(items,top)=>`<ol class="how2${top?' top':''}">${items.map(x=>`<li>${x}</li>`).join('')}</ol>`;
+function duelTools(d){
+  if(d.tool==='quickdraw') return st.duRes==='wait'?`<div class="timer hot" id="timer">WAIT FOR IT…</div>`
+    :st.duRes==='go'?`<div class="timer done" id="timer">GO! GRAB IT!</div>`
+    :`<button class="btn p" onclick="quickDraw()">⚡ Hands on knees… tap to start</button>`;
+  if(d.secs) return !st.timerUsed?`<button class="btn p" onclick="startTimer(${d.secs})">⏱ Start the ${d.secs}-second timer</button>`:`<div class="timer" id="timer">${d.secs}s</div>`;
+  return '';
+}
+function renderEnd(){
+  $('app').innerHTML=`<div class="tape"></div><div class="stage end"><h1 class="logo">PEACE<br><em>ON EARTH.</em></h1>
+    <p style="color:#ddd;font-size:16px">Finally. Everyone keeps the gift they're holding.</p>
+    ${(()=>{const x=(st&&st.stats)||{}; const rows=[['🎁','Gifts opened',x.opens],['🖐','Steal Duels won',x.steals],['🛡','Gifts defended',x.defended],['🃏','Twist cards',x.twists],['🎉','Unwraps pulled off',x.pulled],['👥','Whole-room cards',x.everyone],['🔁','Last Call swaps',x.lcSwaps],['🙅','Nopes',x.nopes]].filter(r=>r[2]);
+      return rows.length?`<div class="recap"><div class="lbl">TONIGHT'S DAMAGE</div>${rows.map(r=>`<div><span>${r[0]} ${r[1]}</span><b>${r[2]}</b></div>`).join('')}</div>`:''})()}
+    <button class="btn y" onclick="toSetup()">Play again</button></div>`;
+}
+let setupPlayers=8, setupMode='classic';
+function renderSetup(){
+  const saved=load(); const canResume=saved&&saved.step&&saved.step!=='end';
+  $('app').innerHTML=`<div class="tape"></div><div class="setup">
+    <h1 class="logo">GIFT<br><em>WARS</em></h1><div class="sub">A WHITE ELEPHANT GIFT GAME</div>
+    <div class="box"><div class="lbl">HOW MANY PLAYERS?</div><div class="stepper">
+      <button aria-label="Fewer players" onclick="setP(-1)">−</button><output id="pc">${setupPlayers}</output><button aria-label="More players" onclick="setP(1)">+</button></div>
+      <div class="why">About ${Math.round(setupPlayers*6+9)} minutes</div></div>
+    <div class="box"><div class="lbl">GAME MODE</div><div class="modes">
+      ${[['classic','Classic','Open = draw a Twist. Steal = win a quick duel. Deal or duel in Last Call.'],['ceasefire','Ceasefire','No 🎤 cards: no singing, dancing or acting. Great for shy groups, family and kids.'],['allout','All-Out War','Win a steal and you draw a Twist too. Maximum chaos. Best for 4–12.']]
+        .map(([m,n,d])=>`<button class="mode" aria-pressed="${setupMode===m}" onclick="setM('${m}')"><b>${n}</b><span>${d}</span></button>`).join('')}</div></div>
+    <div class="box"><div class="lbl">BEFORE YOU START</div><ul class="steps3">
+      <li><b class="n">1</b><span>Everyone puts one wrapped gift in the middle.</span></li>
+      <li><b class="n">2</b><span>Everyone draws a number from a hat. No need to move seats: "your left" just means the next number up.</span></li>
+      <li><b class="n">3</b><span>Everyone gets one <b>NOPE</b>: say it once to skip anything that makes you sing, dance or act (🎤 cards).</span></li>
+      <li><b class="n">4</b><span>One person holds this phone, reads every card out loud, and turns the sound up.</span></li></ul></div>
+    ${canResume?`<button class="btn g" onclick="resume()">↺ Resume last game</button>`:''}
+    <button class="btn ghost" onclick="openRules()">How to play</button>
+    <button class="btn g" onclick="soundCheck()">🔊 Sound check</button>
+    <p class="why">No sound? Turn the volume up. On iPhone, also check the silent switch.</p>
+    <p class="why">Tip: add this page to your home screen (Share → Add to Home Screen) to open it like an app.</p></div>
+    <div class="dock"><button class="btn y" onclick="newGame(setupPlayers,setupMode)">START GAME →</button></div>`;
+}
+function setP(d){setupPlayers=Math.max(4,Math.min(20,setupPlayers+d));renderSetup()}
+function setM(m){setupMode=m;renderSetup()}
+function resume(){st=load();hist=[];render()}
+function toSetup(){try{localStorage.removeItem(KEY)}catch(e){};st=null;hist=[];render()}
+function undo(){ if(!hist.length) return; stopTimer(); stopMusic(); pendingEnd=null; st=JSON.parse(hist.pop()); save(); render(); }
+
+/* ================= SHEETS ================= */
+function closeSheet(){$('sheet').innerHTML=''}
+function sheet(html){$('sheet').innerHTML=`<div class="sheet" onclick="if(event.target===this)closeSheet()"><div class="panel">${html}<button class="btn g" onclick="closeSheet()">Close</button></div></div>`}
+function openHand(){
+  sheet(`${st.kept.length?`<h3>🃏 KEPT CARDS</h3>${st.kept.map((k,j)=>`<div class="kept"><div class="pn">P${k.p}</div><div><b>${NAME(k.i)}</b><span>${DECK[k.i][2]}</span></div>${['Snooze','Dibs','Shield','Return to Sender'].includes(NAME(k.i))?'':`<button onclick="useKept(${j})">USE</button>`}</div>`).join('')}
+    <p style="font-size:12.5px;color:var(--mut);margin-top:10px">Shield, Return to Sender, Snooze and Dibs pop up on their own when they can be used. Tap USE for the others when the player plays them. All KEEP cards are put away at Last Call.</p>`:''}`);
+}
+function openMenu(){
+  sheet(`<h3>MENU</h3>
+    <button class="btn g" onclick="closeSheet();undo()" ${hist.length?'':'disabled'}>↶ Undo last step</button>
+    <button class="btn g" onclick="openRules()">How to play</button>
+    <button class="btn g" onclick="if(confirm('End this game and start over?')){closeSheet();toSetup()}">Start a new game</button>`);
+}
+function openRules(){
+  sheet(`<div class="rules"><h3>HOW TO PLAY</h3>
+    <p><b>Read out loud:</b> "It's white elephant with a twist. On your turn, open a wrapped gift or steal an opened one. Open: you draw a Twist card. Steal: beat the gift's holder in a quick duel. Win, and they open a gift. Lose, and you open one instead. Everyone gets one Nope to skip performing. At the end: Last Call!"</p>
+    <ul><li>The app tells you whose move it is and only shows the choices you have.</li>
+    <li><b>Opening:</b> draw a Twist. <b>UNWRAP</b> card? Do it while you unwrap. Pull it off and you draw another Twist. Any other card: unwrap first, then do it.</li>
+    <li><b>Stealing:</b> you and the gift's holder play a quick <b>Steal Duel</b>. Win: take the gift; they open a gift. Lose: you open a gift instead (with a Twist). Can't tell who won? The holder wins.</li>
+    <li><b>No left or right:</b> gifts move by player number. The highest number hands to the lowest.</li>
+    <li><b>The room</b> = everyone. Everyone votes and cheers. Only gift-holders get picked or have gifts moved. Tied vote: the host decides.</li>
+    <li><b>NOPE:</b> once per game, skip anything that makes <b>you</b> sing, dance, act or be funny (🎤). Your own Twist: skip it. A duel: draw a different duel. Someone else's card: skip your part.</li>
+    <li>A gift is <b>locked</b> after its 3rd steal (2nd with fewer than 8 players). Put a bow on it.</li>
+    <li><b>Last Call:</b> from Player 1 up, each player may <b>deal</b> (offer a swap; they say yes or no), <b>duel</b> anyone (win = swap) or pass. Win or deal: your new gift gets a bow. Lose a duel: their gift gets a bow.</li>
+    <li>Card can't happen? Tap <b>Can't happen</b> to redraw once.</li></ul></div>`);
+}
+render();
+</script>
+</body>
+</html>
